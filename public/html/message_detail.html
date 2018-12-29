@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <title>每人付</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .init-background {
+            background-color: #f7f7f7;
+        }
+
+        @media screen and (max-width: 769px){
+            #article_content img{
+                width: 693px !important;
+            }
+        }
+
+        @media screen and (max-width: 415px){
+            #article_content img{
+                width: 360px !important;
+            }
+        }
+
+
+        @media screen and (max-width: 376px){
+            #article_content img{
+                width: 320px !important;
+            }
+        }
+
+        @media screen and (max-width: 321px){
+            #article_content img{
+                width: 286px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app init-background" v-cloak>
+    <div>
+        <van-nav-bar title="消息内容" fixed
+                     left-arrow
+                     @click-left="onClickLeft"/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div  style="padding: 2px 4vw;">
+        <div class="am-g am-padding-top-sm" style="width: 100%;text-align: center;">
+            <div class="am-u-sm-12  am-text-lg" v-if="!title" v-cloak>标题未知</div>
+            <div class="am-u-sm-12  am-text-md" else v-cloak><h2>{{title}}</h2></div>
+            <div class="am-u-sm-12 wis-font-gray am-text-center am-padding-vertical am-text-xs" >
+            <span v-if="!now" v-cloak>
+                时间
+            </span>
+                <span v-else v-cloak>
+                {{now}}
+            </span>
+            </div>
+            <div  >
+                <div class="am-u-sm-12 wis-text" v-if="!content" v-cloak>
+                    内容
+                </div>
+                <div class="am-u-sm-12 wis-text" id="article_content" v-html='content' v-else v-cloak>
+                    {{content}}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+
+<script>
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    var data_id = GetQueryString("id");
+    //活动内容
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                items:'',
+                title:'',
+                content:'',
+                now:'',
+                is_read: 1,
+            };
+        },
+        mounted () {
+            var _self =this ;
+            var post_data = {
+                id: data_id,
+                method: 'message.details',
+                nonce: 'message.details',
+                is_read:_self.is_read
+            };
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    if(data.code == 200){
+                        _self.items = data.data;
+                        _self.title = data.data.title;
+                        _self.content = data.data.content;
+                        _self.now = data.data.now;
+                        _self.is_read = data.data.is_read;
+
+
+                    }
+
+                }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        methods: {
+
+            onClickLeft(){
+                window.history.go(-1);            }
+
+        }
+    });
+</script>
+
+</body>
+</html>

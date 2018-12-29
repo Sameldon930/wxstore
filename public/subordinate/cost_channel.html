@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <title>每人付</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/cost-channel.css" rel="stylesheet" />
+</head>
+<body>
+<div id="app" v-cloak>
+<div class="container-fluid">
+    <div class="row" style="margin:10px 0 10px 0">
+        <div>
+            <van-nav-bar fixed title="渠道成本" left-arrow @click-left="onClickLeft"/>
+        </div>
+    </div>
+    <div class="row mrf-title wis-background-white">
+        <div class="col-xs-7">渠道名称</div>
+        <div class="col-xs-5 profit-title">费率</div>
+    </div>
+    <div class="row boder-box"></div>
+        <div class="row wis-background-white">
+            <div class="col-xs-7">微信扫码</div>
+            <div class="col-xs-5 profit">{{wechat_scan == ''?0:wechat_scan}}%</div>
+        </div>
+    <div class="row boder-box-5"></div>
+    <div class="row wis-background-white">
+        <div class="col-xs-7">微信刷卡
+        </div>
+        <div class="col-xs-5 profit">{{wechat_bar ==''?0:wechat_bar}}%</div>
+    </div>
+    <div class="row boder-box-5"></div>
+    <div class="row wis-background-white">
+        <div class="col-xs-7">微信公众号</div>
+        <div class="col-xs-5 profit">{{wechat_js ==''?0:wechat_js}}%</div>
+    </div>
+    <div class="row boder-box-5"></div>
+    <div class="row wis-background-white">
+        <div class="col-xs-7">支付宝扫码</div>
+        <div class="col-xs-5 profit">{{ali_scan == ''?0:ali_scan}}%</div>
+    </div>
+    <div class="row boder-box-5"></div>
+    <div class="row wis-background-white">
+        <div class="col-xs-7">支付宝刷卡</div>
+        <div class="col-xs-5 profit">{{ali_bar == ''?0:ali_bar}}%</div>
+    </div>
+    <div class="row boder-box-5"></div>
+    <div class="row wis-background-white">
+        <div class="col-xs-7">支付宝网页</div>
+        <div class="col-xs-5 profit">{{ali_js ==''?0:ali_js}}%</div>
+    </div>
+
+</div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+</body>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+
+    }
+
+    var data_id = obj.id;
+    var post_data = {
+        id:data_id,
+        method: 'agent.channel',
+        nonce: 'agent.channel',
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                wechat_scan: "",//微信扫码
+                wechat_bar: "", //微信刷卡
+                wechat_js: "",//微信公众号
+                ali_scan: "",//支付宝扫码
+                ali_bar: "",//支付宝刷卡
+                ali_js: "",//支付宝网页
+            };
+        },
+        mounted() {
+            var self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    if (response.data.code == 200) {
+                        var wechat_scan = response.data.data.WECHAT_SCAN;//微信扫码 WECHAT_SCAN
+                        var wechat_bar = response.data.data.WECHAT_BAR;//微信刷卡 WECHAT_BAR
+                        var wechat_js = response.data.data.WECHAT_JS;//微信公众号 WECHAT_JS
+                        var ali_scan = response.data.data.ALI_SCAN;//支付宝扫码 ALI_SCAN
+                        var ali_bar = response.data.data.ALI_BAR;//支付宝刷卡 ALI_BAR
+                        var ali_js = response.data.data.ALI_JS;//支付宝网页 ALI_JS
+                        self.wechat_scan = wechat_scan/100;
+                        self.wechat_bar = wechat_bar/100;
+                        self.wechat_js = wechat_js/100;
+                        self.ali_scan = ali_scan/100;
+                        self.ali_bar = ali_bar/100;
+                        self.ali_js = ali_js/100;
+                    }
+                }).catch(function (error) {
+                 console.log(error);
+            });
+        },
+
+        methods: {
+            onClickLeft(){
+                location.href="../agent_index.html"
+            },
+        }
+
+    });
+
+
+</script>
+</html>

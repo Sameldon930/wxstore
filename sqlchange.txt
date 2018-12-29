@@ -1,0 +1,12 @@
+
+
+//2018-8-14 修改用户流水表内的字段类型
+update account_logs set type = '1' where type='SETTLE_MARCHANT_TRADE_PROFIT';
+update account_logs set type = '2' where type='SETTLE_TRADE_PROFIT';
+update account_logs set type = '3' where type='WITHDRAWAL_ACCOUNT_BALANCE';
+update account_logs set type = '4' where type='WITHDRAWAL_ACCOUNT_BALANCE_REJECTED';
+
+ALTER TABLE `account_logs`
+	ALTER `type` DROP DEFAULT;
+ALTER TABLE `account_logs`
+	CHANGE COLUMN `type` `type` TINYINT UNSIGNED NOT NULL COMMENT '账变类型' COLLATE 'utf8mb4_unicode_ci' AFTER `balance`;

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- Styles -->
+
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/fn.css" rel="stylesheet"/>
+    <link href="../css/amazeui.css" rel="stylesheet"/>
+    <link href="../css/wis.css" rel="stylesheet"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="../css/chart.css" rel="stylesheet"/>
+    <style>
+        .highcharts-credits{
+            display: none!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+<div class="container-fluid">
+    <div class="row" style="margin:1px 0px;">
+        <div>
+            <van-nav-bar fixed title="交易分析" left-arrow @click-left="onClickLeft"/>
+        </div>
+    </div>
+</div>
+    <van-row style="margin-top: 60px;margin-left: 10px;text-align: center">
+        <van-button v-on:click="startdata" type="primary" size="small">日数据</van-button>
+        <van-button v-on:click="startweek" type="primary" size="small">周数据</van-button>
+        <van-button v-on:click="startmonth" type="primary" size="small">月数据</van-button>
+        <div id="container" style="max-width:800px;height:400px"></div>
+        <div id="container1" style="max-width:800px;height:400px"></div>
+
+    </van-row>
+</div>
+</body>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/swiper-4.3.5.min.js"></script>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = './agent_login.html';
+    }
+    var data_id  = obj.id;
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                active:1,
+                type:"",
+                login_check: false,
+                computedTime: 0,
+                //日数据
+                adata:"",
+                bdata:"",
+                cdata:"",
+                ddata:"",
+                edata:"",
+                fdata:"",
+                gdata:"",
+                acount:"",
+                bcount:"",
+                ccount:"",
+                dcount:"",
+                ecount:"",
+                fcount:"",
+                gcount:"",
+                //月数据
+                //周数据
+                Monday:"",
+                Tuesday:"",
+                Wednesday:"",
+                Thursday:"",
+                Friday:"",
+                Saturday:"",
+                Sunday:"",
+                Mondaycount:'',
+                Tuesdaycount:'',
+                Wednesdaycount:'',
+                Thursdaycount:'',
+                Fridaycount:'',
+                Saturdaycount:'',
+                Sundaycount:''
+            }
+        },
+        methods: {
+            homePage(){
+                location.href = "statement.html"
+            },
+            onClickLeft(){
+                location.href = "statement.html"
+            },
+            //日数据
+            startdata(){
+                var post_data = {
+                    method: 'trend.chart',
+                    nonce: 'trend.chart',
+                    id: data_id,
+                    type:1
+                }
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if (response.data.code == 200) {
+                            _self.adata = data.adata/100
+                            _self.bdata = data.bdata/100
+                            _self.cdata = data.cdata/100
+                            _self.ddata = data.ddata/100
+                            _self.edata = data.edata/100
+                            _self.fdata = data.fdata/100
+                            _self.gdata = data.gdata/100
+                            _self.acount = data.acount//0-6
+                            _self.bcount = data.bcount//6-9
+                            _self.ccount = data.ccount//9-12
+                            _self.dcount = data.dcount//12-15
+                            _self.ecount = data.ecount//15-18
+                            _self.fcount = data.fcount//18-21
+                            _self.gcount = data.gcount//21-24
+                            _self.active = 1
+                            var chart = Highcharts.chart('container', {
+                                chart: {
+                                    type: 'line'
+                                },
+                                title: {
+                                    text: '金额'
+                                },
+                                subtitle: {
+                                    text: ''
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                xAxis: {
+                                    categories: [ '6', '9', '12', '15', '18', '21','24']
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle'
+                                },
+                                plotOptions: {
+                                    series: {
+                                        label: {
+                                            connectorAllowed: false
+                                        },
+//                                        pointStart: 1
+                                    },
+                                    line: {
+                                        dataLabels: {
+                                            // 开启数据标签
+                                            enabled: true
+                                        },
+                                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                        enableMouseTracking: false
+                                    }
+                                },
+                                series: [{
+                                    name: '小时',
+                                    data: [_self.adata, _self.bdata, _self.cdata, _self.ddata, _self.edata, _self.fdata, _self.gdata],
+                                }],
+                                responsive: {
+                                    rules: [{
+                                        condition: {
+                                            maxWidth: 500
+                                        },
+                                        chartOptions: {
+                                            legend: {
+                                                layout: 'horizontal',
+                                                align: 'center',
+                                                verticalAlign: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                }
+                            });
+                            var chart = Highcharts.chart('container1', {
+                                chart: {
+                                    type: 'line'
+                                },
+                                title: {
+                                    text: '笔数'
+                                },
+                                subtitle: {
+                                    text: ''
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                xAxis: {
+                                    categories: [ '6', '9', '12', '15', '18', '21','24']
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle'
+                                },
+                                plotOptions: {
+                                    series: {
+                                        label: {
+                                            connectorAllowed: false
+                                        },
+//                                        pointStart: 1
+                                    },
+                                    line: {
+                                        dataLabels: {
+                                            // 开启数据标签
+                                            enabled: true
+                                        },
+                                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                        enableMouseTracking: false
+                                    }
+                                },
+                                series: [{
+                                    name: '小时',
+                                    data: [_self.acount, _self.bcount, _self.ccount, _self.dcount, _self.ecount, _self.fcount, _self.gcount],
+                                }],
+                                responsive: {
+                                    rules: [{
+                                        condition: {
+                                            maxWidth: 500
+                                        },
+                                        chartOptions: {
+                                            legend: {
+                                                layout: 'horizontal',
+                                                align: 'center',
+                                                verticalAlign: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                }
+                            });
+                        }
+                    }).catch(function (error) {
+                });
+            },
+            //月数据
+            startmonth(){
+                var post_data1 = {
+                    method: 'trend.chart',
+                    nonce: 'trend.chart',
+                    id: data_id,
+                    type:2
+                }
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data1, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        var lastMonth = [];
+                        for(var i = 0;i<30;i++){
+                            lastMonth.unshift(new Date(new Date()
+                                .setDate(new Date().getDate()-i))
+                                .toLocaleString().substring(0,10).replace(/(\s*$)/g, ""))
+                        }
+                        var lastDate = [];
+                        for(var i = 0;i<lastMonth.length;i++){
+                            lastDate[i]=0
+                        }
+                        var lastCount = [];
+                        for(var i = 0;i<lastMonth.length;i++){
+                            lastCount[i]=0
+                        }
+                        if (response.data.code == 200) {
+                            var count = 0
+                            for(var l = 0;l<data.data.length;l++){
+                                var startvalue = new Date(data.data[l].created_at);
+                                Y = startvalue.getFullYear() + '/';
+                                M = (startvalue.getMonth() + 1) + '/';
+                                D = startvalue.getDate()
+                                var c =  (Y + M + D);
+                              for (var i=0;i<lastMonth.length;i++){
+                                  if (c == lastMonth[i]){
+                                      var  m = i
+                                      lastDate[m]= lastDate[m]+data.data[l].amount/100
+                                      lastCount[m] = lastCount[m]+1
+                                  }
+                              }
+
+                            }
+
+                            var chart = Highcharts.chart('container', {
+                                chart: {
+                                    type: 'line'
+                                },
+                                title: {
+                                    text: '金额'
+                                },
+                                subtitle: {
+                                    text: ''
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                xAxis: {
+                                    categories: lastMonth
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle'
+                                },
+                                plotOptions: {
+                                    series: {
+                                        label: {
+                                            connectorAllowed: false
+                                        },
+//                                        pointStart: 1
+                                    },
+                                    line: {
+                                        dataLabels: {
+                                            // 开启数据标签
+                                            enabled: true
+                                        },
+                                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                        enableMouseTracking: false
+                                    }
+                                },
+                                series: [{
+                                    name: '月份',
+                                    data: lastDate
+                                }],
+                                responsive: {
+                                    rules: [{
+                                        condition: {
+                                            maxWidth: 500
+                                        },
+                                        chartOptions: {
+                                            legend: {
+                                                layout: 'horizontal',
+                                                align: 'center',
+                                                verticalAlign: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                }
+                            });
+
+                            var chart = Highcharts.chart('container1', {
+                                chart: {
+                                    type: 'line'
+                                },
+                                title: {
+                                    text: '笔数'
+                                },
+                                subtitle: {
+                                    text: ''
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                xAxis: {
+                                    categories: lastMonth
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle'
+                                },
+                                plotOptions: {
+                                    series: {
+                                        label: {
+                                            connectorAllowed: false
+                                        },
+//                                        pointStart: 1
+                                    },
+                                    line: {
+                                        dataLabels: {
+                                            // 开启数据标签
+                                            enabled: true
+                                        },
+                                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                        enableMouseTracking: false
+                                    }
+                                },
+                                series: [{
+                                    name: '月份',
+                                    data: lastCount
+                                }],
+                                responsive: {
+                                    rules: [{
+                                        condition: {
+                                            maxWidth: 500
+                                        },
+                                        chartOptions: {
+                                            legend: {
+                                                layout: 'horizontal',
+                                                align: 'center',
+                                                verticalAlign: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                }
+                            });
+
+                        }
+                    }).catch(function (error) {
+                });
+            },
+            //周数据
+            startweek(){
+                var post_data2 = {
+                    method: 'trend.chart',
+                    nonce: 'trend.chart',
+                    id: data_id,
+                    type:3
+                }
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data2, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if (response.data.code == 200) {
+                            _self.Monday  = data.Monday/100
+                            _self.Tuesday  = data.Tuesday/100
+                            _self.Wednesday = data.Wednesday/100
+                            _self.Thursday = data.Thursday/100
+                            _self.Friday = data.Friday/100
+                            _self.Saturday = data.Saturday/100
+                            _self.Sunday = data.Sunday/100
+
+                            _self.Mondaycount = data.Mondaycount
+                            _self.Tuesdaycount = data.Tuesdaycount
+                            _self.Wednesdaycount = data.Wednesdaycount
+                            _self.Thursdaycount = data.Thursdaycount
+                            _self.Fridaycount = data.Fridaycount
+                            _self.Saturdaycount = data.Saturdaycount
+                            _self.Sundaycount = data.Sundaycount
+                            _self.active = 2
+                            var chart = Highcharts.chart('container', {
+                                chart: {
+                                    type: 'line'
+                                },
+                                title: {
+                                    text: '金额'
+                                },
+                                subtitle: {
+                                    text: ''
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                xAxis: {
+                                    categories: ['星期一','星期二', '星期三', '星期四', '星期五', '星期六', '星期天']
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle'
+                                },
+                                plotOptions: {
+                                    series: {
+                                        label: {
+                                            connectorAllowed: false
+                                        },
+//                                        pointStart: 1
+                                    },
+                                    line: {
+                                        dataLabels: {
+                                            // 开启数据标签
+                                            enabled: true
+                                        },
+                                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                        enableMouseTracking: false
+                                    }
+                                },
+                                series: [{
+                                    name: '星期',
+                                    data: [_self.Monday,_self.Tuesday, _self.Wednesday,
+                                        _self.Thursday, _self.Friday,
+                                        _self.Saturday, _self.Sunday
+                                    ],
+                                }],
+                                responsive: {
+                                    rules: [{
+                                        condition: {
+                                            maxWidth: 500
+                                        },
+                                        chartOptions: {
+                                            legend: {
+                                                layout: 'horizontal',
+                                                align: 'center',
+                                                verticalAlign: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                }
+                            });
+
+                            var chart = Highcharts.chart('container1', {
+                                chart: {
+                                    type: 'line'
+                                },
+                                title: {
+                                    text: '笔数'
+                                },
+                                subtitle: {
+                                    text: ''
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: '',
+                                    }
+                                },
+                                xAxis: {
+                                    categories: ['星期一','星期二', '星期三', '星期四', '星期五', '星期六', '星期天']
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle'
+                                },
+                                plotOptions: {
+                                    series: {
+                                        label: {
+                                            connectorAllowed: false
+                                        },
+//                                        pointStart: 1
+                                    },
+                                    line: {
+                                        dataLabels: {
+                                            // 开启数据标签
+                                            enabled: true
+                                        },
+                                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                        enableMouseTracking: false
+                                    }
+                                },
+                                series: [{
+                                    name: '星期',
+                                    data: [_self.Mondaycount,_self.Tuesdaycount, _self.Wednesdaycount,
+                                        _self.Thursdaycount, _self.Fridaycount,
+                                        _self.Saturdaycount, _self.Sundaycount
+                                    ],
+                                }],
+                                responsive: {
+                                    rules: [{
+                                        condition: {
+                                            maxWidth: 500
+                                        },
+                                        chartOptions: {
+                                            legend: {
+                                                layout: 'horizontal',
+                                                align: 'center',
+                                                verticalAlign: 'bottom'
+                                            }
+                                        }
+                                    }]
+                                }
+                            });
+
+                        }
+                    }).catch(function (error) {
+                });
+            },
+
+        },
+
+        //默认为type=1 ---日数据
+        mounted () {
+            var post_data = {
+                method: 'trend.chart',
+                nonce: 'trend.chart',
+                id: data_id,
+                type:1
+            }
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    if (response.data.code == 200) {
+                            _self.adata = data.adata/100//0-6
+                            _self.bdata = data.bdata/100//6-9
+                            _self.cdata = data.cdata/100//9-12
+                            _self.ddata = data.ddata/100//12-15
+                            _self.edata = data.edata/100//15-18
+                            _self.fdata = data.fdata/100//18-21
+                            _self.gdata = data.gdata/100//21-24
+
+                            _self.acount = data.acount//0-6
+                            _self.bcount = data.bcount//6-9
+                            _self.ccount = data.ccount//9-12
+                            _self.dcount = data.dcount//12-15
+                            _self.ecount = data.ecount//15-18
+                            _self.fcount = data.fcount//18-21
+                            _self.gcount = data.gcount//21-24
+                            _self.active = 1
+                        var chart = Highcharts.chart('container', {
+                            chart: {
+                                type: 'line'
+                            },
+                            title: {
+                                text: '金额'
+                            },
+                            subtitle: {
+                                text: ''
+                            },
+                            yAxis: {
+                                title: {
+                                    text: '',
+                                }
+                            },
+                            xAxis: {
+                                categories: [ '6', '9', '12', '15', '18', '21','24']
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'middle'
+                            },
+                            plotOptions: {
+                                series: {
+                                    label: {
+                                        connectorAllowed: false
+                                    },
+//                                        pointStart: 1
+                                },
+                                line: {
+                                    dataLabels: {
+                                        // 开启数据标签
+                                        enabled: true
+                                    },
+                                    // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                    enableMouseTracking: false
+                                }
+                            },
+                            series: [{
+                                name: '小时',
+                                data: [_self.adata, _self.bdata, _self.cdata, _self.ddata, _self.edata, _self.fdata, _self.gdata],
+                            }],
+                            responsive: {
+                                rules: [{
+                                    condition: {
+                                        maxWidth: 500
+                                    },
+                                    chartOptions: {
+                                        legend: {
+                                            layout: 'horizontal',
+                                            align: 'center',
+                                            verticalAlign: 'bottom'
+                                        }
+                                    }
+                                }]
+                            }
+                        });
+
+                        var chart = Highcharts.chart('container1', {
+                            chart: {
+                                type: 'line'
+                            },
+                            title: {
+                                text: '笔数'
+                            },
+                            subtitle: {
+                                text: ''
+                            },
+                            yAxis: {
+                                title: {
+                                    text: '',
+                                }
+                            },
+                            xAxis: {
+                                categories: [ '6', '9', '12', '15', '18', '21','24']
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'middle'
+                            },
+                            plotOptions: {
+                                series: {
+                                    label: {
+                                        connectorAllowed: false
+                                    },
+//                                        pointStart: 1
+                                },
+                                line: {
+                                    dataLabels: {
+                                        // 开启数据标签
+                                        enabled: true
+                                    },
+                                    // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                                    enableMouseTracking: false
+                                }
+                            },
+                            series: [{
+                                name: '小时',
+                                data: [_self.acount, _self.bcount, _self.ccount, _self.dcount, _self.ecount, _self.fcount, _self.gcount],
+                            }],
+                            responsive: {
+                                rules: [{
+                                    condition: {
+                                        maxWidth: 500
+                                    },
+                                    chartOptions: {
+                                        legend: {
+                                            layout: 'horizontal',
+                                            align: 'center',
+                                            verticalAlign: 'bottom'
+                                        }
+                                    }
+                                }]
+                            }
+                        });
+
+                    }
+                }).catch(function (error) {
+            });
+        },
+    });
+</script>
+</html>

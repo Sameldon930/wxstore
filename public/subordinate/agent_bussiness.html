@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/agent-bussiness.css" rel="stylesheet" />
+    <title>每人付</title>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div>
+        <div class="row" style="margin:15px 0 15px 0">
+            <div>
+                <van-nav-bar fixed title="旗下商户" left-arrow   @click-left="onClickLeft"/>
+            </div>
+        </div>
+
+        <div class="mrf-title ">
+            <div class="col-xs-3">交易时间</div>
+            <div class="col-xs-6"></div>
+            <div class="col-xs-3">
+                <img src="../img/i/down.png " height="14"
+                     @click="timezone"
+                >
+                 <input type="text" hidden id="time">
+                <van-popup v-model="show">
+                    <van-picker
+                            show-toolbar
+                            :columns="columns"
+                            @cancel="onCancel"
+                            @confirm="onConfirm"
+                    />
+                </van-popup>
+            </div>
+
+        </div>
+        <div class="row boder-box"></div>
+        <div class="count" >
+            <div class="count-box" >
+                <div class="count-title">
+                    总金额:
+                </div>
+                <div class="count-money">
+                    {{money ==''?0:money}}
+                </div>
+            </div>
+        </div>
+        <div class="row boder-box-5"></div>
+        <div  class="count">
+            <div class="count-box">
+                <div class="count-title">
+                    总分润:
+                </div>
+                <div class="count-money">
+                    {{benefit ==''?0:benefit}}
+                </div>
+            </div>
+        </div>
+        <div class="row " style="margin: 1em -15px;">
+            <div class="col-xs-3">商户人数</div>
+            <div class="col-xs-2">{{count ==''?0:count}}</div>
+        </div>
+        <div class="row boder-box-5"></div>
+        <div v-show="shelly">
+            <div class="list_null" v-if="items == null || items==0" v-cloak>
+                <div class="list_null_word">旗下暂无商户!</div>
+            </div>
+            <div v-for="item in items">
+                <div class="merchant-box">
+                    <div class="merchant-content">
+                        <div class="merchant-name">
+                            {{item.name}}
+                        </div>
+                        <div style="width: 5%;font-size: 14px">
+                            <a :href="'deal_detail.html?id='+item.id">
+                                <img src="../img/i/bf@2x.png " height="14">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/wis.common.js"></script>
+</body>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+    var data_id = obj.id;
+    var post_data = {
+        id:data_id,
+        method: 'agent.account.list',
+        nonce: 'agent.account.list',
+        zone:"",
+        remember_token:obj.remember_token
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                count: "",
+                items:'',
+                shelly:false,
+                money:'',
+                benefit:'',
+                data:'',
+                show:false,
+                name:'',
+                columns: ['交易时间', '今日', '近七日', '本周', '本月','近三月'],
+                zone:"",
+                login_check: false,
+            };
+        },
+        mounted () {
+            var _self =this ;
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    if(data.code == 200){
+                        _self.count = data.data1;//旗下商户数量
+                        _self.items = data.data;//旗下商户列表
+                        _self.money = data.money;
+                        _self.benefit = data.benefit;
+                        _self.shelly = true;
+                    }
+                    if(response.data.code == '0005') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+                    if(response.data.code == '2001') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+                }).catch(function (error) {
+//                console.log(error);
+            });
+        },
+        methods: {
+            onClickLeft(){
+                location.href="../agent_index.html"
+            },
+            timezone(){
+                this.show = true;
+            },
+            onCancel(){
+                this.show = false;
+            },
+            onConfirm(a){
+                this.show = false;
+                var columns = a;
+                var post_data = {
+                    id:data_id,
+                    method: 'agent.account.list',
+                    nonce: 'agent.account.list',
+                    columns:columns,
+                    remember_token:obj.remember_token
+                };
+                var _self =this ;
+                axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if(data.code == 200){
+                            _self.money = data.money;
+                            _self.benefit = data.benefit;
+                        }
+                        if(response.data.code == '0005') {
+                            _self.login_check = false;
+                            window.localStorage.removeItem('WIS_MRFAgent.user');
+                            _self.$dialog.alert({
+                                title: '请重新登录',
+                                message: response.data.msg
+                            }).then(() => {
+                                window.location.href = 'agent_login.html';
+                            })
+                        }
+                        if(response.data.code == '2001') {
+                            _self.login_check = false;
+                            window.localStorage.removeItem('WIS_MRFAgent.user');
+                            _self.$dialog.alert({
+                                title: '请重新登录',
+                                message: response.data.msg
+                            }).then(() => {
+                                window.location.href = 'agent_login.html';
+                            })
+                        }
+                    }).catch(function (error) {
+                    console.log(error);
+                });
+            },
+
+        }
+
+    });
+
+
+</script>
+</html>

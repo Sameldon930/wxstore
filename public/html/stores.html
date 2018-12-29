@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <title>每人付-旗下门店</title>
+    <style>
+        body{
+            background-color: #f5f5f5;
+        }
+        .wis-background-white{
+            background-color: white;
+            padding: 7px;
+        }
+        .mrf-title{
+            margin-top: 35px;
+        }
+        .boder-box{
+            height: 10px;
+        }
+        .boder-box-5{
+            height: 5px;
+        }
+        .list_null{
+            display:flex;
+            width:100%;
+            margin: 1rem auto;
+            background-color:#fff;
+            height: 10vh;
+            justify-content: center;
+        }
+        .list_null_word{
+            display: flex;
+            margin: auto;
+            font-size: 1.5em;
+            color: #2F8CE5;
+        }
+        .col-xs-3{
+            width: 25%;
+             text-align: center;
+        }
+        .store_list{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="container-fluid">
+        <div class="row" style="margin:10px 0 10px 0">
+            <div>
+                <van-nav-bar fixed title="旗下门店"
+                             left-arrow
+                             right-text="添加门店"
+                             @click-right="onClickAdd"
+                             @click-left="onClickLeft"/>
+            </div>
+        </div>
+
+        <div class="row mrf-title wis-background-white">
+            <div class="col-xs-3">门店数量</div>
+            <div class="col-xs-1" >{{data1 == null?0:data1}}</div>
+            <div class="col-xs-2"></div>
+
+        </div>
+        <div class="row boder-box"></div>
+        <div class="row wis-background-white">
+            <div class="col-xs-3">门店名称</div>
+            <div class="col-xs-1"></div>
+            <div class="col-xs-3">总金额</div>
+            <div class="col-xs-1"></div>
+            <div class="col-xs-1"></div>
+            <div class="col-xs-3">交易笔数</div>
+        </div>
+        <div class="row boder-box-5"></div>
+        <div v-show="shelly">
+            <div  class="list_null" v-if=" items == null || items == ''" v-cloak>
+                <div class="list_null_word">暂无门店或门店暂无收益!</div>
+            </div>
+            <div v-for="item in items" >
+                <div class="row wis-background-white" v-on:click.stop="del(item.id)">
+                    <div class="col-xs-3 store_list"  >{{item.name}}</div>
+                    <div class="col-xs-1"></div>
+                    <div class="col-xs-3" v-if="item.orders==''">0</div>
+                    <div class="col-xs-3" v-else>{{item.orders[0].money/100}}</div>
+                    <div class="col-xs-1"></div>
+                    <div class="col-xs-1"></div>
+                    <div class="col-xs-3" v-if="item.orders==''">0</div>
+                    <div class="col-xs-3" v-else>{{item.orders[0].number}}</div>
+                </div>
+                <div class="row boder-box-5"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/wis.common.js"></script>
+</body>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id = obj.id;
+    var token = obj.remember_token;
+    var post_data = {
+        id:data_id,
+        method: 'store.list',
+        nonce: 'store.list',
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                data1: "",
+                items:[],
+                shelly:false,
+                money:'',
+                number:'',
+                data:'',
+                orders:[],
+            };
+        },
+        mounted () {
+            var _self =this ;
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    var data1 = response.data1;
+                    if(data.code == 200){
+                        _self.data1 = data.data1;
+                        _self.items = data.data;
+                        _self.shelly = true;
+                    }
+                }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        methods: {
+            onClickLeft(){
+                location.href="../index.html"
+            },
+            myMerchant(){
+                location.href="merchant.html"
+            },
+            onClickAdd(){
+                location.href="add_store.html"
+            },
+            del:function (id) {
+                this.$dialog.confirm({
+                    title: '是否删除门店',
+                    message: '确认要删除这家门店吗？',
+                }).then(() => {
+                    this.onConfirm(id);
+                }).catch(() => {
+
+                });
+            },
+            onConfirm: function (id) {
+                var post_data = {
+                    id: id,
+                    method: 'stores.delete',
+                    nonce: 'stores.delete',
+                    remember_token: token,
+                };
+                var _self = this
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var message = _self.message = response.data.msg;
+                        WIS_toast({
+                            msg: '删除成功',
+                            time: 1000,
+                            location: 'middle'
+                        })
+                        setTimeout(function () {
+                            window.location.href = 'stores.html';
+                        }, 1000)
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+        }
+
+    });
+
+
+</script>
+</html>

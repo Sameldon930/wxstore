@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <title>每人付</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/deal-detail.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<div id="app" v-cloak>
+    <div>
+        <van-nav-bar title="旗下商户" left-arrow  @click-left="onClickLeft" fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+    <div>
+        <div class="van">
+            <div class="card-container">
+
+                <div v-if="avatar == null || avatar == ''" >
+                    <img src='../img/i/touxiang@1x.png'  height="70" width="70">
+                </div>
+                <div v-else class="avatar-item">
+                    <img :src="'/storage/'+avatar"  >
+                </div>
+                <div style="text-align: center;margin-top: 1em;">
+                    <div style="font-size: 16px;color: #1a1a1a;">{{name}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="border-gray"></div>
+    <div class="account-box" >
+        <div class="account-left">
+            <div class="account-title" >总金额:</div>
+            <div class="account-money">{{account == ''?0:account}}</div>
+        </div>
+        <div class="account-left">
+            <div class="account-title">总分润:</div>
+            <div class="account-money">{{benefit == ''?0:benefit}}</div>
+        </div>
+    </div>
+    <div class="time-option">
+        <div class="mrf-title ">
+            <div class="col-xs-3">交易时间</div>
+            <div class="col-xs-7"></div>
+            <div class="col-xs-2 text-right">
+                <img src="../img/i/down.png " height="14"
+                     @click="timezone"
+                >
+                <input type="text" hidden id="time">
+                <van-popup v-model="show">
+                    <van-picker
+                            show-toolbar
+                            :columns="columns"
+                            @cancel="onCancel"
+                            @confirm="onConfirm"
+                    />
+                </van-popup>
+            </div>
+
+        </div>
+    </div>
+
+    <van-list v-model="loading" :finished="finished" @load="ShowLoad">
+        <div class="container Order_info" v-for="item in items">
+            <div class="row">
+                <div class="Order">
+                    订单号：{{item.order_no ==''?0:item.order_no}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="Order" >
+                    订单时间：{{item.paid_at ==''?0:item.paid_at}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="Order">
+                    订单金额：{{item.trade_amount / 100== ''?0:item.trade_amount / 100}}
+                </div>
+            </div>
+
+        </div>
+    </van-list>
+
+
+</div>
+
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+    var data_aid  = obj.id;
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+    var page_num = 1;
+    var data_id = GetQueryString("id");
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                name:'',
+                account:'',
+                avatar:'',
+                benefit:'',
+                show:false,
+                columns: ['交易时间', '今日', '近七日', '本周', '本月','近三月'],
+                zone:"",
+                items:[],
+                loading: false,
+                finished: false,
+                post_data: {},
+                total:"",
+            };
+        },
+        mounted () {
+            var _self =this ;
+            var post_data = {
+                id: data_id,
+                method: 'agent.account.detail',
+                nonce: 'agent.account.detail',
+                aid:data_aid,
+                type: '',
+                page_num: page_num,
+                token:obj.remember_token
+            };
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    if(data.code == 200){
+                        //拿值
+                        _self.name = response.data.data.name;
+                        _self.account = response.data.account;
+                        _self.benefit = response.data.benefit;
+                        _self.items = response.data.orders.data;
+                    }
+
+                }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        methods: {
+
+            onClickLeft(){
+                window.history.go(-1);
+            },
+            timezone(){
+                this.show = true;
+            },
+            onCancel(){
+                this.show = false;
+            },
+            onConfirm(a){
+                page_num = 1;
+                this.finished = false;
+                this.show = false;
+                var columns = a;
+                var post_data = {
+                    id:data_id,
+                    method: 'agent.account.detail',
+                    nonce: 'agent.account.detail',
+                    aid:data_aid,
+                    columns:columns,
+                    page_num: page_num,
+                    token:obj.remember_token
+                };
+                var _self =this ;
+                axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+//                        console.log(data)
+                        if(data.code == 200){
+                            _self.items = response.data.orders.data;
+                            _self.post_data.page_num++;
+                        }
+                    }).catch(function (error) {
+                    console.log(error);
+                });
+            },
+            ShowLoad() {
+                page_num++;
+                if ($.isEmptyObject(this.post_data)) {
+                    this.post_data = {
+                        method: 'agent.account.detail',
+                        nonce: 'agent.account.detail',
+                        id: data_id,
+                        aid:data_aid,
+                        page_num: page_num,
+                        type: "",
+                        token:obj.remember_token
+                    };
+                }
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(this.post_data, 'mrf'))
+                    .then(function (response) {
+                        if (response.data.code == 200) {
+                            var datas = response.data.orders.data;
+                            var total =  response.data.orders.total
+                            var length = datas.length;
+//                            console.log(length);
+//                            console.log(_self.items.length);
+                            if (length == 0) {
+                                _self.finished = true;
+                            }else if(total<=_self.items.length){
+                                _self.finished = true;
+                            } else {
+                                for (var i = 0; i < length; i++) {
+                                    _self.items.push(datas[i]);
+                                }
+                            }
+                            _self.post_data.page_num++;
+                            _self.loading = false;
+
+                        }
+                    }).catch(function (error) {
+                });
+            },
+
+        }
+    });
+</script>
+
+</body>
+</html>

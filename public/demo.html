@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <link rel="stylesheet" href="css/amazeui.css"/>
+    <link rel="stylesheet" href="css/wis.css"/>
+    <link rel="stylesheet" href="css/fn.css"/>
+</head>
+<body>
+
+<div id="app">
+    <form method="post" action="http://dotpay.world-is-smart.com/v1/sync_notice/rrgou_sync">
+        <input name="cc" value="aa"/>
+        <input type="submit" value="提交"/>
+    </form>
+
+    </br>
+
+</div>
+<div id="aa"></div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/wis.common.js"></script> <!-- common 中有封装好的弹窗提示方法 -->
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            'return':''
+        },
+        created:function(){
+            var post_data = {
+                method: 'demo',
+                nonce: 'demo',
+                param1:'1123',
+            };
+            var _self=this;
+            //得到支付申请结果，并跳转到对应页面进行支付
+            axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        _self.return='12312313';
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+        },
+        methods:{
+
+        }
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <title>每人付</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <style>
+        .van-nav-bar{
+            background-color: #fff !important;
+
+        }
+        .van-nav-bar__text,.van-nav-bar__title,.van-nav-bar__left span{
+            color: #1a1a1a !important;
+        }
+        .van-icon-arrow::before{
+            color:#1a1a1a!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar title="账户" left-arrow @click-left="onClickLeft"  right-text="明细" @click-right="onClickRight"fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div class= "fn-my-header">
+        <div class="fn-index-top " style="margin-left: 2em;">
+            <div class="fn-font-default am-padding-vertical">余额账户（元）</div>
+            <div class="fn-font-llg am-padding-top">{{account}}</div>
+        </div>
+    </div>
+    <a href=" ./deposit.html ">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0 " style="box-shadow: 1px 2px 5px rgba(136, 136, 136, 0.24);">
+            <div class="am-u-sm-10 wis-border-top am-padding-top-sm"></div>
+            <div class="am-u-sm-6">
+                <img src="../img/withdraw.png" width="18" height="18" class="am-margin-right">
+                <span class="font-height ">提现</span>
+            </div>
+            <div class="am-u-sm-5 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+
+    }
+    var data_id  = obj.id;
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                id:'',
+                login_check: false,
+                data:'',
+                account:''
+
+            }
+        },
+        methods: {
+            onClickLeft(){
+                location.href = "../agent_index.html"
+            },
+            onClickRight(){
+                location.href = "./withdraw_detail.html"
+            },
+
+        },
+        mounted () {
+            var post_data = {
+                method: 'agent.account',
+                nonce: 'agent.account',
+                id: data_id,
+                remember_token:obj.remember_token
+            }
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf')).then(response => {
+                if (response.data.code == '200') {
+                    var data = response.data;
+                    _self.account = data.data;
+                }
+                if (response.data.code == '0005') {
+                    _self.login_check = false;
+                    window.localStorage.removeItem('WIS_MRFAgent.user');
+                    _self.$dialog.alert({
+                        title: '请重新登录',
+                        message: response.data.msg
+                    }).then(() => {
+                        window.location.href = 'agent_login.html';
+                    })
+                }
+                    if (response.data.code == '2001') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+            }).catch(error => {
+                console.log(error);
+            });
+
+        }
+    });
+</script>
+
+</body>
+</html>

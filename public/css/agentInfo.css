@@ -1,0 +1,33 @@
+body{
+    background-color: #f5f5f5;
+}
+.wis-background-white{
+    background-color: white;
+    padding: 5px;
+}
+.boder-box{
+    height: 6px;
+}
+.wis-Middle{
+    text-align: center;
+    color: #BBBBBB;
+}
+.wis-img{
+    margin-top: 6px;
+}
+.van-nav-bar > div > i {
+    color: #BBBBBB !important;
+}
+.van-nav-bar{
+    background-color: #fff !important;
+
+}
+.van-nav-bar__text,.van-nav-bar__title,.van-nav-bar__left span{
+    color: #1a1a1a !important;
+}
+.van-icon-arrow::before{
+    color:#1a1a1a!important;
+}
+.text-middle{
+    text-align: left;
+}

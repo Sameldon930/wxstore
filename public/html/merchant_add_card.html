@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>每人付</title>
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../css/amazeui.css">
+    <link rel="stylesheet" href="../css/wis.css">
+
+    <style>
+        body {
+            font-size: 12px;
+            background: #e9e9e9;
+        }
+
+        .wis-header-color {
+            background: #2F8CE5!important;
+        }
+
+        .wis-text-white {
+            color: white;
+            font-size: 24px;
+        }
+
+        .wis-bg {
+            background: white;
+        }
+
+        .wis-border-b {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .am-form-label {
+            font-weight: normal;
+        }
+
+        .am-form-horizontal .am-form-label {
+            padding-top: .3em;
+            margin-left: 21px;
+        }
+
+        .wis-btn {
+            background: #ff5c2a;
+            color: white;
+            line-height: 20px;
+            border: 1px solid #ff5c2a;
+            border-radius: 3px;
+        }
+
+        .am-form-group {
+            margin-bottom: 0.3rem;
+        }
+
+        .wis-form-group-last {
+            margin-bottom: 0;
+        }
+
+        .wis-btn-lg {
+            line-height: 40px;
+            font-size: 16px;
+            position: fixed;
+            bottom: 0;
+            border-radius: 0;
+        }
+
+        .am-form select {
+            font-size: 14px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        .am-form-horizontal > div {
+            padding: 6px 8px 6px;
+        }
+        .wis-background-primary{
+            background: #2F8CE5!important;
+        }
+        .am-icon-btn.am-warning{
+            background-color: #2F8CE5!important;
+        }
+        .am-modal-btn {
+            color: #2F8CE5!important;
+        }
+        .am-header .am-header-title{
+            font-size: 16px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="">
+    <header data-am-widget="header" class="am-header wis-header-color am-header-fixed">
+
+        <div class="am-header-left am-header-nav">
+            <a href="javascript:window.history.back();" class="">
+                <span class="am-icon-angle-left wis-text-white wis-back-icon-font"></span>
+            </a>
+        </div>
+
+        <h1 class="am-header-title wis-text-white">
+            添加银行卡
+        </h1>
+    </header>
+</div>
+<div class="am-g wis-bg">
+
+    <div id="app1">
+        <form class="am-form am-form-horizontal" action="" method="post" id="form-card">
+
+            <div class="am-form-group am-form-group-sm wis-border-bottom am-padding-horizontal-0">
+                <label for="name" class="am-u-sm-2 am-form-label am-padding-horizontal-0">户名 :</label>
+                <div class="am-u-sm-9 am-padding-left-0">
+
+                    <input type="input" class="am-form-field am-text-xs" id="name" style="border: 0px;padding-left: 19px;"
+                           v-model='account_name' placeholder="户名" data-pattern="^([\u4e00-\u9fa5]){2,7}$">
+                </div>
+            </div>
+
+
+            <div class="am-form-group am-padding-xs am-text-center am-input-group wis-border-bottom">
+
+                <label class="am-padding-left-sm am-input-group-label am-text-sm wis-text-black"
+                       style="border:0px; background: white">银行卡号：</label>
+
+                <input type="text" class="am-form-field am-text-sm" data-action="chunk-saving-card"
+                       placeholder="请输入银行卡号" style="border:0px;"
+                       id="account" data-patterna="^(\d{15}|\d{16}|\d{19})$" v-model="account_no">
+            </div>
+
+
+            <!--<div class="am-form-group am-form-group-sm wis-border-b am-margin-horizontal-sm am-padding-horizontal-0">-->
+                <!--<label for="kh" class="am-u-sm-3 am-form-label am-padding-horizontal-0">信用卡号 :</label>-->
+                <!--<div class="am-u-sm-9 am-padding-left-0">-->
+                    <!--<input type="input" class="am-form-field am-text-xs" id="kh" data-action="chunk-credit-card"-->
+                           <!--placeholder="本人信用卡卡号" style="border: 0px" v-model='account_no'-->
+                           <!--data-patterna="^(\d{15}|\d{16}|\d{19})$">-->
+                <!--</div>-->
+            <!--</div>-->
+
+
+            <div class="am-form-group am-padding-xs am-text-center am-input-group wis-border-bottom">
+                <label for="doc_select" class="am-padding-left-sm am-text-sm wis-text-black am-input-group-label"
+                       style="border:0px; background: white">开户银行：</label>
+                <select id="doc_select" class="am-text-sm am-form-field" style="border: 0;font-size: 15px"
+                        class="am-form-field am-text-sm" v-on:change="prov" v-model="bank_name">
+                    <option value="" selected disabled>请选择开户银行</option>
+                    <option v-for="bk in bank" :value="bk.id">{{bk.bank_name}}</option>
+                </select>
+            </div>
+
+            <div class="am-form-group am-padding-xs am-text-center am-input-group wis-border-bottom">
+                <label for="provs" class="am-padding-left-sm am-text-sm wis-text-black am-input-group-label"
+                            style="border:0px; background: white">开户省份：</label>
+                <select class="prov am-form-field am-text-sm" style="border: 0;font-size: 15px" id="provs"
+                        v-on:change="ccity" v-on:click="show_p" >
+                    <option value="" selected disabled>请选择开户省</option>
+                    <option v-for="(bks,k) in citylist" :value="bks.p" :data-id="k">{{bks.p}}</option>
+                </select>
+            </div>
+
+            <div class="am-form-group am-padding-xs am-text-center am-input-group wis-border-bottom">
+                <label for="city" class="am-input-group-label am-padding-left-sm am-text-sm wis-text-black"
+                       style="border:0px; background: white">开户市级：</label>
+                <select class="city am-form-field am-text-sm" style="border: 0;font-size: 15px" id="city"
+                        v-model="hcity" v-on:click="show_city">
+                    <option value="" selected disabled>请选择开户市</option>
+                    <option v-for="ct in citys" :value="ct.n">{{ct.n}}</option>
+                </select>
+            </div>
+            <div class="am-form-group am-padding-xs am-text-center am-input-group wis-border-bottom">
+                <label for="zhihang" class="am-padding-left-sm am-text-sm wis-text-black am-input-group-label"
+                       style="border:0px; background: white">开户支行：</label>
+                <input type="text" class="am-form-field am-text-sm am-padding-right-xl" placeholder="请输入开户支行"
+                       style="border:0px;"
+                       id="zhihang" data-pattern="[a-zA-Z\u4E00-\u9FA5]{2,20}(?:·[a-zA-Z\u4E00-\u9FA5]{2,20})*">
+            </div>
+
+
+
+            <div class="am-padding-0">
+                <button class="am-navbar  am-text-center wis-background-primary" type="submit" id="add_card"
+                        data-action="loading">
+                    <span class=" am-text-lg" style="color: #fff;">确认添加</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="../js/bundle.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/city.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/chunkInput.js"></script>
+<script>
+
+    var userObj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    //获取数据
+    var app = new Vue({
+        el: '#app1',
+        data: {
+            account_name: userObj.name,
+            bank_name:false,
+            account_no: '',
+            credit_mobile: '',
+            cvv2: '',
+            id_number: "",
+            indate: '',
+            items: [{id: '', bank_name: ''}],
+            bankcode_id:"",
+            bank:[{id: '', bank_name: ''}],
+            branchs: [],
+            citylist: bb.citylist,
+            citys: '',
+            city: '',
+            hcity: '',
+        },
+        mounted: function () {
+            var post_data = {
+                method: 'credit.card.bank.get.list',
+                nonce: 'credit.card.bank.get.list',
+                remember_token:userObj.remember_token,
+                id: userObj.id,
+            };
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    if (response.data.code == '200') {
+                        _self.bank = response.data.data;
+                    }
+                    if(response.data.code == '2001') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFMerchant.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'login.html';
+                        })
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+        methods: {
+            prov: function () {
+                var _self = this;
+                _self.citys = null;
+                _self.branchs = [];
+                if ($('#doc_select').val() != '') {
+                    _self.citylist = bb.citylist;
+                }
+                $("#provs option:first").prop("selected", 'selected');
+                $("#city option:first").prop("selected", 'selected');
+            },
+            ccity: function () {
+                var _self = this;
+                _self.branchs = [];
+                if ($('#provs').val() != '') {
+                    var city = $("#provs").find("option:selected").attr("data-id");
+                    _self.citys = bb.citylist[city].c;
+                }
+                $("#city option:first").prop("selected", 'selected');
+            },
+            show_city: function (e) {
+                var _this = this;
+                _this.branchs = [];
+                if (!$('#provs').val()) {
+                    WIS_toast({
+                        msg: '请先选择省',
+                        time: 2000,
+                        location: 'middle'
+                    })
+                    return false;
+                }
+                if ($("#city").val()) {
+                    var post_data = {
+                        bank_id: $("#doc_select").val(),
+                        province: $("#provs").val(),
+                        city: $("#city").val(),
+                        method: 'bank.branch.get.list',
+                        nonce: 'bank.branch.get.list',
+                    };
+                    axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                        .then(function (response) {
+                            var data = response.data;
+                            if (data.code == '200') {
+                                _this.branchs = data.data;
+                            } else {
+                                WIS_alert({
+                                    msg: data.msg,
+                                    type: 2,
+                                })
+                            }
+
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+
+            },
+            show_p : function () {
+                if (!$('#doc_select').val()) {
+                    WIS_toast({
+                        msg: '请先选择开户银行',
+                        time: 2000,
+                        location: 'middle'
+                    })
+                }
+            },
+            select_branch: function (e) {
+                var $this = $(e.target);
+                $("#zhihang").val($this.val());
+                $this.val("");
+            },
+
+            submit: function () {
+                var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+                if (obj == null) {
+                    window.location.href = 'agent_login.html'
+                } else {
+                    var remember_token = obj.remember_token;
+                    var user_id = obj.id;
+                }
+               // console.log(remember_token);
+
+//                开户银行
+                var doc_select = $('#doc_select').val();
+//                开户省份
+                var provs = $('#provs').val();
+//                开户城市
+                var city = $('#city').val();
+//                开户支行
+                var zhihang = $('#zhihang').val();
+                //                     银行卡号
+                var account = removeAllSpace(document.getElementById('account').value);
+                var reg = new RegExp(/^([1-9]{1})(\d{13,18})$/);
+                if (!reg.test(account)) {
+                    WIS_toast({"msg": "银行卡号格式不正确"});
+                    return false;
+                }
+
+                var post_data = {
+//                    用户名
+                    account_name: this.account_name,
+                    account_no:account,
+                    doc_select: doc_select,
+                    provs: provs,
+                    city: city,
+                    zhihang: zhihang,
+                    method: 'savings.card.update',
+                    nonce: 'savings.card.update',
+                    remember_token: remember_token,
+                    id: user_id,
+                };
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if (data.code == '0006') {
+                            WIS_toast({
+                                msg: response.data.msg,
+                                time: 1000,
+                                location: 'middle'
+                            })
+                        }
+                        if (data.code == '200') {
+                            document.getElementById('add_card').disabled = true;
+                            //window.localStorage.setItem('token',data.data.token);
+                            //在这里加入添加成功提示
+                            WIS_toast({
+                                msg: '添加成功',
+                                time: 1000,
+                                location: 'middle'
+                            })
+                            setTimeout(function () {
+                                window.location.href = 'merchant_card.html';
+                                //window.history.go(-1);
+                            }, 1000)
+                        } else {
+                            if (data.code == '0005') {
+                                WIS_toast({
+                                    msg: '请先登录',
+                                    time: 1000,
+                                    location: 'middle'
+                                });
+                                setTimeout(function () {
+                                    window.location.href = 'login.html'
+                                }, 1000)
+                            } else {
+                                WIS_alert({
+                                    msg: data.msg,
+                                    type: 2
+                                })
+                            }
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            }
+        }
+    });
+
+    $(document).on('submit', '#form-card', function (e) {
+        if (WIS_validate($(this))) {
+            app.submit();
+        }
+        return false;
+    })
+
+
+</script>
+</body>
+</html>

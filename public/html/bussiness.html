@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/chart.css" rel="stylesheet" />
+    <style>
+        .van{
+            height: 34vh;
+            width: 100vw;
+            background:#181f23;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url("../img/config/merchant_bgi.jpg") no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+        .card-container {
+            width: 80vw;
+            height: auto;
+            background:rgba(255,255,255,0.48);
+            min-height: 28vw;
+            border-radius: 2vh;
+            display: flex;
+            align-items: center;
+            justify-content:center;
+        }
+        .card-header {
+            padding:10px auto;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 60vw;
+        }
+        .card-header>div{
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+        .cell-icon-title {
+            line-height: 2em;
+        }
+        .merchant-title {
+            color: #101010;
+            overflow: hidden;
+            white-space:nowrap;
+            text-overflow: ellipsis;
+        }
+        .font-fixed{
+            margin: auto 0.5em;
+        }
+        .avatar-item{
+            height: 18vw;
+            width: 18vw;
+            border-radius: 50%;
+            border: 1vw solid #fff
+        }
+        .fix_merchant_bar{
+            padding-top: 105px;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar title="经营中心" fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div class= "fn-my-header">
+        <div class="fn-index-top " style="margin-left: 2em;">
+            <div class="fn-font-default am-padding-vertical">月交易金额（元）</div>
+            <div class="fn-font-llg am-padding-top">{{month_money}}</div>
+        </div>
+
+        <div class="am-g"style="margin-left: 2em;">
+            <div class="am-u-sm-5 fn-font-default am-padding-0" >
+                <span class="fn-font-sm">交易笔数(笔)</span><span style="font-size: 12px;margin-left: 1em;">{{month_number}}</span>
+            </div>
+
+            <div class="am-u-sm-7 fn-font-default  am-padding-0" >
+                <span class="fn-font-sm">今日交易金额(元)</span><span style="font-size: 12px;margin-left: 1em;">{{dataToday}}</span>
+            </div>
+        </div>
+    </div>
+    <a href="analysis1.html">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0 " style="box-shadow: 1px 2px 5px rgba(136, 136, 136, 0.24);">
+            <div class="am-u-sm-10 wis-border-top am-padding-top-sm"></div>
+            <div class="am-u-sm-6">
+                <img src="../img/i/my-my-credit-card.png" width="18" height="18" class="am-margin-right">
+                <span class="font-height ">交易分析</span>
+            </div>
+            <div class="am-u-sm-5 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+    <!--<a href="#" @click="test">-->
+        <!--<div class="am-g wis-background-white  am-padding-sm am-padding-top-0 " style="box-shadow: 1px 2px 5px rgba(136, 136, 136, 0.24);margin-top:1em;">-->
+            <!--<div class="am-u-sm-10 wis-border-top am-padding-top-sm"></div>-->
+            <!--<div class="am-u-sm-6">-->
+                <!--<img src="../img/i/client.png" width="18" height="18" class="am-margin-right">-->
+                <!--<span class="font-height ">顾客分析</span>-->
+            <!--</div>-->
+            <!--<div class="am-u-sm-5 am-text-right ">-->
+                <!--<img src="../img/i/bf@2x.png " height="18">-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</a>-->
+
+    <div>
+        <van-tabbar v-model="active">
+            <van-tabbar-item icon="wap-nav" @click="homePage">首页</van-tabbar-item>
+            <van-tabbar-item icon="points-mall" >经营中心</van-tabbar-item>
+            <van-tabbar-item icon="contact" @click="myMerchant">我的</van-tabbar-item>
+        </van-tabbar>
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+
+
+<!--月账单-->
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id  = obj.id;
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                active: 1,
+                avatar: '',
+                id: '',
+                login_check: false,
+                computedTime: 0,
+                month_number: "",//笔数
+                month_money: "",//月交易金额
+                dataToday:"",//今日交易金额
+
+
+            }
+        },
+        methods: {
+            homePage(){
+                location.href = "../index.html"
+            },
+            myMerchant(){
+                location.href = "my.html"
+            },
+            test(){
+                this.$dialog.alert({
+                    title:"暂未开放"
+                })
+            }
+
+        },
+        mounted () {
+            var post_data = {
+                method: 'month',
+                nonce: 'month',
+                id: data_id,
+                type:""
+            }
+            var self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'wis')).then(response => {
+                if (response.data.code == '200') {
+                    var data = response.data;
+                    self.id = data.id;
+                    self.month_number = data.month_number;//月交易笔数
+                    self.month_money = data.month_money;//月交易金额
+                    self.dataToday = data.dataToday;//今日交易金额
+
+                } else {
+                    if (response.data.code == '005') {
+                        this.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFMerchant.user');
+                        this.$dialog.confirm({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = '../html/login.html';
+                        }).catch(() => {
+                            window.location.href = '../index.html';
+                        });
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+
+        }
+    });
+</script>
+
+</body>
+</html>

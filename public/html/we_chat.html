@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png"/>
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略"/>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet"/>
+    <link href="../css/wis.css" rel="stylesheet"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="../css/fn.css" rel="stylesheet"/>
+    <!--<link rel="stylesheet" href="https://unpkg.com/vant/lib/vant-css/index.css">-->
+    <style>
+        .card-header > div {
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+
+        .mrf-but {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .avatar-item img {
+            width: 70px;
+            height: 70px;
+            border: 1vw solid #ffffff;
+            border-radius: 50%;
+        }
+
+        .van-uploader {
+            width: 71% !important;
+        }
+
+        .border-sort {
+            height: 5px;
+            background: #F0F0F0;
+        }
+
+        .am-padding-sm {
+            padding: 6px !important;
+        }
+
+        .border-my {
+            height: 1px;
+            background: #F0F0F0;
+        }
+
+        .am-modal-btn {
+            color: #0e90d2 !important;
+        }
+
+        .nickname {
+            margin-top: 25px;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="wis-background-gray">
+<div id="app1" class="init-app" v-cloak>
+    <div data-am-widget="tabs" class="am-tabs am-tabs-default" id="app" v-cloak>
+        <div class="container-fluid" style="margin-top: 60px">
+            <div class="row" style="margin:1px 0px;">
+                <div>
+                    <van-nav-bar fixed title="微信信息" left-arrow @click-left="onClickLeft"/>
+                </div>
+            </div>
+        </div>
+        <div class="my-header am-g wis-background-primary  am-padding-sm">
+            <div class="am-u-sm-4" style="text-align: center">
+                <div>
+                    <img :src="wx_headimgurl" height="70" width="70">
+                </div>
+
+            </div>
+            <div class="am-u-sm-8 nickname">
+                 昵称：{{wx_nickname}} --当前公众号通知用户
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/app1.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/mrf.common.js"></script>
+
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if (obj == null) {
+        window.location.href = '../html/login.html';
+    }
+
+    var app = new Vue({
+        el: '#app1',
+        data: {
+            wx_headimgurl: '',
+            wx_nickname: ''
+        },
+        created: function () {
+
+            //检查用户
+            var user_id = obj.id;
+            var post_data = {
+                id: user_id,
+                action: 'wx_login',
+                method: 'weixin.login',
+                nonce: 'weixin.login',
+            };
+            var _self = this;
+
+            axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if (data.code == '200') {
+                            _self.wx_headimgurl = data.data.wx_headimgurl;
+                            _self.wx_nickname = data.data.wx_nickname;
+                        } else if (data.code == '201') {
+                            window.location.href = data.href;
+                        } else {
+                            pop_error_msg(data.msg, _self)
+                        }
+
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+
+        },
+        methods: {
+            onClickLeft() {
+                window.history.back();
+            },
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png"/>
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略"/>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- Styles -->
+
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/fn.css" rel="stylesheet"/>
+    <link href="../css/amazeui.css" rel="stylesheet"/>
+    <link href="../css/wis.css" rel="stylesheet"/>
+    <script src="../js/echarts.min.js"></script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .d_info {
+            margin-top: 40px;
+            background-color: white;
+            text-align: center;
+        }
+
+        .Order_info {
+            background-color: white;
+            margin-top: 15px;
+            width: 90%;
+        }
+
+        .Order {
+            padding: 4px;
+            margin-left: 5px;
+            font-size: 12px;
+            color:rgba(187,187,187,1);
+        }
+
+        .form-group {
+            width: 90%;
+            margin-left: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .show img{
+            width: 100%;
+            height: 700px;
+            background-repeat: no-repeat;
+            box-sizing: border-box;
+        }
+        .Order_info{
+            background-color: white;
+            margin-top: 25px;
+            width: 90%;
+            box-shadow: 0px 1px 5px #888888;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .text-center-middle{
+            margin-top: 25%;
+        }
+        .amount-word{
+            font-size: 20px;
+            color: #1a1a1a;
+        }
+        .refresh{
+            text-align: center;
+            color: #3c8dbc;
+            font-size: 14px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="container-fluid">
+        <div class="row" style="margin:10px 0 10px 0">
+            <div>
+                <!--right-text="门店筛选"-->
+                <van-nav-bar fixed title="交易明细" left-arrow right-text="筛选" @click-right="onClickIndex"
+                             @click-left="onClickLeft"/>
+            </div>
+        </div>
+    </div>
+    <van-popup v-model="show" position="bottom" :overlay="false" id="pro">
+
+        <div class="row" style="padding-left: 20px;margin-top: 10px;">
+            <div class="col-xs-4" v-on:click="cancel" style="color: #38f">关闭</div>
+            <div class="col-xs-4"></div>
+            <div class="col-xs-4" v-on:click="query" style="color: #38f; text-align: center">确定</div>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">订单号</label>
+            <input type="text" id="order" class="form-control" id="exampleInputEmail1">
+        </div>
+        <div class="form-group">
+            <label>订单状态</label>
+            <select class="form-control" id="state">
+                <option value="1">未支付</option>
+                <option value="2">已支付</option>
+                <option value="3" selected>全部</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>订单起始时间<span style="color: red;font-size: 10px;">(近三月)</span></label>
+            <input type="text" id="starttime" readonly="readonly" class="form-control" v-on:click="startdate">
+        </div>
+        <van-popup v-model="show3" position="bottom">
+            <van-datetime-picker
+                    v-model="currentDate"
+                    type="date"
+                    @confirm="startconfirm"
+                    @cancel="show3 = false"
+                    @change="change"
+                    :min-date="minDate"
+                    :max-date="maxDate"
+                    :formatter="formatter"/>
+        </van-popup>
+        <!--订单结束时间-->
+        <div class="form-group">
+            <label>订单结束时间</label>
+            <input type="text" id="endtime" readonly="readonly" class="form-control" v-on:click="endtime">
+        </div>
+        <van-popup v-model="show4" position="bottom">
+            <van-datetime-picker
+                    v-model="currentDate"
+                    type="date"
+                    @confirm="endconfirm"
+                    @cancel="show4 = false"
+                    @change="changeend"
+                    :min-date="minDate"
+                    :max-date="maxDate"
+                    :formatter="formatter"/>
+        </van-popup>
+
+        <div class="form-group">
+            <label>交易通道</label>
+            <select class="form-control" id="channel">
+                <option value="1">微信</option>
+                <option value="2">支付宝</option>
+                <option value="3" selected>全部</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="store">门店</label>
+            <select class="form-control" id="store">
+                <option value="1">全部</option>
+                <option  v-bind:value="mid">{{mname}}</option>
+                <option  v-for="items in store" v-bind:value="items.id">{{items.name}}</option>
+            </select>
+        </div>
+    </van-popup>
+    <div class="d_info container-fluid">
+        <div class="row">
+            <div class="col-xs-6 text-left">总笔数:{{ count == null ?"0":count }}笔</div>
+            <div class="col-xs-6 text-right">¥{{ sum /100}}</div>
+        </div>
+    </div>
+
+        <div v-show="images" class="list_null" v-if=" items == null || items == ''" v-cloak>
+            <div class="list_null_word show"><img src="../img/nodata.png"></div>
+        </div>
+
+        <div v-for="item in items">
+            <a href="#">
+                <div class="container  Order_info Order_info">
+                    <div class="col-xs-8">
+                    <div class="row">
+                        <div class="Order" style="color: #1a1a1a;">
+                            <img src="../img/code.png" style="width: 20px; height: 18px">
+                            {{ item.order_no == null ? "暂无描述":item.order_no}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="Order">
+                            订单时间 :{{ item.created_at == null ? "暂无描述":item.created_at}}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="Order">
+                            订单状态:{{item.pay_status}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="Order">
+                            交易通道:{{ item.tube_id == 1 ?"微信" :"支付宝" }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="Order">
+                            门 店:{{item.body }}
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-xs-4 text-center-middle">
+                        <div class="row" v-show="item.pay_status=='未支付'">
+                            <div class="Order amount-word" style="color: #ed943e">
+                               ￥{{item.trade_amount/100 == null ? "暂无描述":item.trade_amount/100}}
+                            </div>
+                        </div>
+                        <div class="row" v-show="item.pay_status=='已支付'">
+                            <div class="Order amount-word" style="color: #2e8ce4">
+                                ￥{{item.trade_amount/100 == null ? "暂无描述":item.trade_amount/100}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    <div class="refresh" v-on:click="onLoad">点击加载更多...</div>
+
+</div>
+</body>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script language="JavaScript">
+
+
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+
+    if (obj == null) {
+
+        window.location.href = '../html/login.html';
+        }
+        var data_id = obj.id;
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                minDate: new Date(2012, 1, 1),
+                maxDate: new Date(2019, 10, 1),
+                currentDate: new Date(),
+                show: false,
+                show2: false,
+                show3: false,
+                show4: false,
+                page_num: 1,
+                username: "",
+                items: [],
+                store: [],
+                mname: "",
+                mid: "",
+                count: "",
+                sum: "",
+                tube_id: "",
+                type: "",
+                status: "",
+                post_data: {},
+                images: false,
+            };
+        },
+
+        mounted() {
+            var post_data = {
+                id: data_id,
+                method: 'transaction.details',
+                nonce: 'transaction.details',
+                page_num: this.page_num,
+
+
+            };
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    if (response.data.code == 200) {
+                        var datas = response.data.data.data;
+                        var count = response.data.count;
+                        var sum = response.data.sum;
+                        var store = response.data.store;
+                        var merchant = response.data.merchant;
+                        console.log(datas)
+                        _self.items = datas;
+                        _self.count = count;
+                        _self.sum = sum;
+                        _self.store = store;
+                        _self.mname = merchant[0].name;
+                        _self.mid = merchant[0].id;
+                        _self.status = status
+                        _self.images = true
+                    }
+
+                }).catch(function (error) {
+            });
+        },
+        methods: {
+            onLoad() {
+                var _self = this;
+                    setTimeout(() => {
+                        _self.page_num++;
+                        var order = $("#order").val();
+                        //开始时间
+                        var starttime = $("#starttime").val();
+                        //结束时间
+                        var endtime = $("#endtime").val();
+                        //订单状态
+                        var state = $("#state").val();
+                        //通道
+                        var channel = $("#channel").val();
+                        //门店
+                        var store = $("#store").val();
+                            var post_data = {
+                                method: 'transaction.details',
+                                nonce: 'transaction.details',
+                                id: data_id,
+                                order: order,
+                                starttime: starttime,
+                                endtime: endtime,
+                                state: state,
+                                channel: channel,
+                                store:store,
+                                page_num: _self.page_num,
+
+                        }
+                        axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                            .then(function (response) {
+                                if (response.data.code == 200) {
+                                    var datas = response.data.data.data;
+                                    var length = datas.length;
+                                    var total = response.data.data.total
+                                    if (_self.items.length<3){
+                                        $('.refresh').html("")
+                                    }
+                                    if (length == 0 ){
+                                        _self.$toast('没有更多数据了');
+                                        $('.refresh').html("")
+                                    } else {
+                                        for (var i = 0; i < length; i++) {
+                                            _self.items.push(datas[i]);
+                                        }
+                                    }
+                                }
+                            }).catch(function (error) {
+                        });
+                    }, 500);
+        },
+            formatter(type, value) {
+                if (type === 'year') {
+                    return `${value}年`;
+                } else if (type === 'month') {
+                    return `${value}月`
+                }
+                return value;
+            },
+            // 开始时间的改变事件
+            change(e){
+                var index = e.getValues();
+                //console.log(index)
+                var date = index.join("-");
+                //console.log(date)
+                $('#starttime').val(date)
+            },
+            //开始时间点击事件
+            startconfirm(v){
+                var startvalue = new Date(v);
+                Y = startvalue.getFullYear() + '-';
+                M = (startvalue.getMonth() + 1 < 10 ? '0' + (startvalue.getMonth() + 1) : startvalue.getMonth() + 1) + '-';
+                D = startvalue.getDate() + ' ';
+                $('#starttime').val(Y + M + D);
+                this.show3 = false;
+            },
+            //结束时间改变事件
+            changeend(e){
+                var index = e.getValues();
+                //console.log(index)
+                var date = index.join("-");
+                //console.log(date)
+                $('#endtime').val(date)
+            },
+            //结束时间点击事件
+            endconfirm(v){
+                var endvalue = new Date(v);
+                Y = endvalue.getFullYear() + '-';
+                M = (endvalue.getMonth() + 1 < 10 ? '0' + (endvalue.getMonth() + 1) : endvalue.getMonth() + 1) + '-';
+                D = endvalue.getDate() + ' ';
+                $('#endtime').val(Y + M + D);
+                this.show4 = false;
+            },
+            //开始时间的点击事件
+            startdate(){
+                this.show3 = true;
+            },
+            //开始时间的点击事件
+            endtime(){
+                this.show4 = true;
+            },
+            //门店筛选的点击事件
+            onClickIndex(){
+                this.show = true;
+            },
+
+            query(){
+                $('.refresh').html("点击加载更多...")
+                var _self = this;
+                _self.page_num = 1
+                // 订单号
+                var order = $("#order").val();
+                //开始时间
+                var starttime = $("#starttime").val();
+                //结束时间
+                var endtime = $("#endtime").val();
+                //订单状态
+                var state = $("#state").val();
+                //通道
+                var channel = $("#channel").val();
+                //门店
+                var store = $("#store").val();
+                var d1 = new Date(starttime.replace(/\-/g, "\/"));
+                var d2 = new Date(endtime.replace(/\-/g, "\/"));
+//                if (starttime == "") {
+//                    this.$toast('必须填写起始时间');
+//                    this.show = true;
+//                }
+                if (starttime != "" && endtime != "" && d1 >= d2) {
+                    this.$toast('请输入正确的时间格式');
+                    this.show = true;
+                    return false
+                }
+                if (starttime == ''&&endtime != "" ){
+                    this.$toast('请选择开始时间');
+                    this.show = true;
+                    return false
+                }
+                var post_data = {
+                    id: data_id,
+                    method: 'transaction.details',
+                    nonce: 'transaction.details',
+                    order: order,
+                    starttime: starttime,
+                    endtime: endtime,
+                    state: state,
+                    channel: channel,
+                    page_num: _self.page_num,
+                    store:store,
+
+
+                };
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        if (response.data.code == 2001) {
+                            _self.items = "";
+                            _self.count = "";
+                            _self.sum = "";
+                            _self.status = status;
+                            _self.$toast(response.data.msg);
+                            _self.show = false;
+                        }
+                        if (response.data.code == 200) {
+                            var datas = response.data.data.data;
+                            var length = datas.length;
+                            var datas = response.data.data.data;
+                            var count = response.data.count;
+                            var sum = response.data.sum;
+                            var status = datas.pay_status;
+                            _self.items = datas;
+                            _self.count = count;
+                            _self.sum = sum;
+                            _self.status = status;
+                            _self.show = false;
+                            if (_self.items.length<3){
+                                $('.refresh').html("")
+                            }
+                        }
+                    }).catch(function (error) {
+                });
+            },
+            onClickLeft(){
+                location.href = "../index.html"
+            },
+            cancel(){
+                this.show = false;
+            }
+        }
+    });
+</script>
+</html>

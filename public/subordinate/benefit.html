@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>每人付</title>
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/fn.css" rel="stylesheet"/>
+    <link href="../css/amazeui.css" rel="stylesheet"/>
+    <link href="../css/wis.css" rel="stylesheet"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="../css/chart.css" rel="stylesheet"/>
+    <style>
+        .am-tabs-bd {
+            border: 0;
+        }
+        #tabs {
+            margin-top: 44px;
+        }
+        .mrf-hide{
+           height: 100px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        .am-tabs-default .am-tabs-nav > .am-active a {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .am-tabs-default .am-tabs-nav > .am-active:after {
+            content: '';
+            display: block;
+            margin: 0 1.5em;
+        }
+
+        .am-tabs-default .am-tabs-nav > li:not(last-child) {
+            border-right: 1px solid #e9e9e9;
+        }
+
+        .merchant {
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .merchant .merchant-type {
+            display: inline-block;
+            font-size: 1.125em;
+            padding-left: 5px;
+        }
+
+        .merchant .merchant-rate {
+            color: #ff6000;
+        }
+
+        .merchant .merchant-img {
+            vertical-align: sub;
+        }
+
+        .btn-agency {
+            font-size: 1.8rem;
+            text-align: center !important;
+            background: #ff7c2b;
+            margin-top: 1.6rem;
+            color: #ffffff;
+            height: 46px;
+            line-height: 46px;
+            z-index: 1030;
+        }
+
+        .merchant .merchant-rank:nth-child(2) {
+            margin-top: 0.6em;
+        }
+
+        .merchant .merchant-rank:last-child:after {
+            height: 0.6em;
+        }
+        .mrf-date{
+            margin-top: 20px;
+            text-align: center;
+        }
+        .mrf-date input[type='text']{
+            width: 35%;
+            height: 33px;
+            line-height: 30px;
+           text-align: center;
+        }
+        [v-cloak] {
+            visibility: hidden;
+        }
+        .mrf-hide{
+            display: none;
+        }
+        .highcharts-credits {
+            display: none !important;
+        }
+        .fn-font-llg{
+            font-size: 2.6rem;
+            color: #FAFA00 ;
+        }
+        .am-tabs-default .am-tabs-nav a {
+            color: #222222;
+            line-height: 42px;
+            font-size: 14px;
+        }
+        .wis-back-icon-font{
+            font-size: 25px;
+        }
+        .d_info{
+            margin-top: 40px;
+            background-color: white;
+            text-align: center;
+        }
+        .Order_info{
+            background-color: white;
+            margin-top: 25px;
+            margin-bottom: 2px;
+            width: 90%;
+            box-shadow: 1px 1px 1px #888888;
+        }
+        .Order{
+            padding: 8px;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        .form-group{
+            width: 90%;
+            margin-left: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .profit{
+            width: 40%;
+            height: 103px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .comt{
+           line-height: 103px;
+        }
+        .hides{
+            display: none;
+        }
+    </style>
+</head>
+<body class=" wis-background-gray">
+<div id="app">
+<div class="container-fluid">
+    <div class="row" style="margin:1px 0px;">
+        <div>
+            <van-nav-bar fixed title="分润明细" left-arrow right-text="筛选" @click-right="onClickIndex" @click-left="onClickLeft"/ style>
+        </div>
+    </div>
+</div>
+<div data-am-widget="tabs" class="am-tabs am-tabs-default" v-cloak>
+    <div id="tabs">
+        <div class="am-tabs-bd" id="tabs-1" style="z-index: -1;">
+            <div class=" fn-my-header fn-color-white" style="margin: 1vh auto;">
+                <div class="  fn-font-center  fn-index-top ">
+                    <div class=" fn-font-llg am-padding-top">{{sumdata}}</div>
+                    <div style="font-size: 1.2em;color: #fff;">累计收入(元)</div>
+                </div>
+
+                <div class="am-g fn-font-center">
+                    <div class="am-u-sm-6 fn-font-default am-padding-0">
+                        <div style="font-size: 14px;color: #fff;">{{Frontdata}} </div>
+                        <span style="font-size: 14px;color: #fff;">昨日分润(元)</span>
+                    </div>
+                    <div class="am-u-sm-6 fn-font-default fn-color-white am-padding-0">
+                        <div style="font-size: 14px;color: #ffffff;">{{afterdata}}</div>
+                        <span style="font-size: 14px;color: #fff;">当前分润(元)</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--数据概述    结束-->
+        <van-pull-refresh v-model="isLoading" @refresh="onRefresh">
+            <div class="container Order_info" v-for="item in items">
+                    <div class="col-xs-7">
+                        <div class="row">
+                            <div class="Order" v-if="item.tube_id == 1">
+                                <img src="../img/wechat.png" style="width: 20px; height: 18px">
+                                <span style="font-size: 14px;">微信</span>
+                            </div>
+                            <div class="Order" v-if="item.tube_id == 2">
+                                <img src="../img/pay.png" style="width: 20px; height: 18px">
+                                <span style="font-size: 14px;">支付宝</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="Order">
+                                商户名：{{ item.name == null ? "暂无描述":item.name}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="Order">
+                                交易时间：{{ item.created_at == null ? "暂无":item.created_at}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-5 profit">
+
+                        <div class="comt">￥{{ item.amount/100 == null ? "暂无":item.amount/100}}</div>
+                    </div>
+            </div>
+            </van-pull-refresh>
+        <!--数据概述    结束-->
+        <van-popup v-model="show" position="bottom" :overlay="false" id="pro">
+
+            <div class="row" style="padding-left: 20px;margin-top: 10px;">
+                <div class="col-xs-4" v-on:click="cancel" style="color: #38f">关闭</div>
+                <div class="col-xs-4"></div>
+                <div class="col-xs-4" v-on:click="query" style="color: #38f; text-align: center">确定</div>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail2">商户名</label>
+                <input type="text" id="merchant" class="form-control" id="exampleInputEmail2">
+            </div>
+            <div class="form-group">
+                <label>订单起始时间<span style="color: red;font-size: 5px">(近三月)</span></label>
+                <input type="text" id="starttime" readonly="readonly" class="form-control" v-on:click="startdate">
+            </div>
+            <van-popup v-model="show3" position="bottom">
+                <van-datetime-picker
+                        v-model="currentDate"
+                        type="date"
+                        @confirm="startconfirm"
+                        @cancel="show3 = false"
+                        @change="change"
+                        :min-date="minDate"
+                        :max-date="maxDate"
+                        :formatter="formatter"/>
+            </van-popup>
+            <!--订单结束时间-->
+            <div class="form-group">
+                <label>订单结束时间</label>
+                <input type="text" id="endtime" readonly="readonly" class="form-control" v-on:click="endtime">
+            </div>
+            <van-popup v-model="show4" position="bottom">
+                <van-datetime-picker
+                        v-model="currentDate"
+                        type="date"
+                        @confirm="endconfirm"
+                        @cancel="show4 = false"
+                        @change="changeend"
+                        :min-date="minDate"
+                        :max-date="maxDate"
+                        :formatter="formatter"/>
+            </van-popup>
+
+            <div class="form-group">
+                <label>交易通道</label>
+                <select class="form-control" id="channel">
+                    <option value="1">微信</option>
+                    <option value="2">支付宝</option>
+                    <option value="3" selected>全部</option>
+                </select>
+            </div>
+        </van-popup>
+    </div>
+</div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+        if(obj == null){
+            window.location.href = 'agent_login.html';
+
+        }
+        var page_num = 1;
+        var data_id = obj.id;
+        var app = new Vue({
+            el: "#app",
+            data() {
+                return {
+                    sumdata:"",
+                    minDate: new Date(2012, 1, 1),
+                    maxDate: new Date(2019, 10, 1),
+                    currentDate: new Date(),
+                    Frontdata:"",
+                    afterdata:"",
+                    show:false,
+                    show3:false,
+                    show4:false,
+                    page_num: 1,
+                    items:[],
+                    isLoading: false,
+                    date:""
+                };
+            },
+            mounted() {
+                var post_data = {
+                    id: data_id,
+                    method: 'moisture.content',
+                    nonce: 'moisture.content',
+                    page_num: page_num,
+                    remember_token:obj.remember_token
+                };
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                        .then(function (response) {
+                            var data = response.data;
+
+                            if (response.data.code == 200) {
+                                _self.sumdata = data.sumdata/100
+                                _self.Frontdata = data.Frontdata/100
+                                _self.afterdata = data.afterdata/100
+                                _self.items = data.data.data
+                                for(var i = 0;i<_self.items.length;i++){
+                                    _self.date =  _self.items[i]['created_at'].substr(0,10)
+                                    _self.items[i]['created_at']=_self.date;
+                                }
+                            } if(response.data.code == '0005') {
+                                _self.login_check = false;
+                                window.localStorage.removeItem('WIS_MRFAgent.user');
+                                _self.$dialog.alert({
+                                    title: '请重新登录',
+                                    message: response.data.msg
+                                }).then(() => {
+                                    window.location.href = 'agent_login.html';
+                                })
+                            }
+                            if(response.data.code == '2001') {
+                                _self.login_check = false;
+                                window.localStorage.removeItem('WIS_MRFAgent.user');
+                                _self.$dialog.alert({
+                                    title: '请重新登录',
+                                    message: response.data.msg
+                                }).then(() => {
+                                    window.location.href = 'agent_login.html';
+                                })
+                            }
+                        }).catch(function (error) {
+                });
+            },
+
+
+            methods: {
+                onClickLeft(){
+                    location.href = "../agent_index.html"
+                },
+                onClickIndex(){
+                    location.href = "agent_index.html"
+                },
+                myMerchant(){
+                    location.href = "merchant.html"
+                },
+                onRefresh() {
+
+                    var _self = this;
+                    setTimeout(() => {
+                        _self.page_num++;
+                        //开始时间
+                        var starttime = $("#starttime").val();
+                        //结束时间
+                        var endtime = $("#endtime").val();
+                        //商户名
+                        var merchant = $("#merchant").val();
+                        //通道
+                        var channel = $("#channel").val();
+                        var post_data = {
+                            method: 'moisture.content',
+                            nonce: 'moisture.content',
+                            id: data_id,
+                            merchant: merchant,
+                            starttime: starttime,
+                            endtime: endtime,
+                            channel: channel,
+                            page_num: _self.page_num,
+                            remember_token:obj.remember_token
+
+                        }
+                        axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                            .then(function (response) {
+                                if (response.data.code == 200) {
+                                    var datas = response.data.data.data;
+                                    var length = datas.length;
+                                    var total = response.data.data.total
+                                    if (length == 0 ){
+                                        _self.$toast('没有更多数据了');
+                                        _self.isLoading = false;
+                                    } else {
+                                        for (var i = 0; i < length; i++) {
+                                            _self.items.unshift(datas[i]);
+                                        }
+                                        for(var i = 0;i<_self.items.length;i++){
+                                            _self.date =  _self.items[i]['created_at'].substr(0,10)
+                                            _self.items[i]['created_at']=_self.date;
+                                        }
+                                        _self.$toast('刷新成功');
+                                        _self.isLoading = false;
+                                    }
+                                }
+                            }).catch(function (error) {
+                        });
+                    }, 500);
+                },
+                onClickIndex(){
+                    this.show = true;
+                },
+                formatter(type, value) {
+                    if (type === 'year') {
+                        return `${value}年`;
+                    } else if (type === 'month') {
+                        return `${value}月`
+                    }
+                    return value;
+                },
+                // 开始时间的改变事件
+                change(e){
+                    var index = e.getValues();
+                    //console.log(index)
+                    var date = index.join("-");
+                    //console.log(date)
+                    $('#starttime').val(date)
+                },
+                //开始时间点击事件
+                startconfirm(v){
+                    var startvalue = new Date(v);
+                    Y = startvalue.getFullYear() + '-';
+                    M = (startvalue.getMonth() + 1 < 10 ? '0' + (startvalue.getMonth() + 1) : startvalue.getMonth() + 1) + '-';
+                    D = startvalue.getDate()
+                    $('#starttime').val(Y + M + D);
+                    this.show3 = false;
+                },
+                //结束时间改变事件
+                changeend(e){
+                    var index = e.getValues();
+                    //console.log(index)
+                    var date = index.join("-");
+                    //console.log(date)
+                    $('#endtime').val(date)
+                },
+                //结束时间点击事件
+                endconfirm(v){
+                    var endvalue = new Date(v);
+                    Y = endvalue.getFullYear() + '-';
+                    M = (endvalue.getMonth() + 1 < 10 ? '0' + (endvalue.getMonth() + 1) : endvalue.getMonth() + 1) + '-';
+                    D = endvalue.getDate();
+                    $('#endtime').val(Y + M + D);
+                    this.show4 = false;
+                },
+                //开始时间的点击事件
+                startdate(){
+                    this.show3 = true;
+                },
+                //开始时间的点击事件
+                endtime(){
+                    this.show4 = true;
+                },
+                query(){
+                    page_num = 1;
+                    this.finished = false;
+                    this.show = false;
+                    //开始时间
+                    var starttime = $("#starttime").val();
+                    //结束时间
+                    var endtime = $("#endtime").val();
+                    //商户名
+                    var merchant = $("#merchant").val();
+                    //通道
+                    var channel = $("#channel").val();
+                    var d1 = new Date(starttime.replace(/\-/g, "\/"));
+                    var d2 = new Date(endtime.replace(/\-/g, "\/"));
+//                    if (starttime == "") {
+//                        this.$toast('必须填写起始时间');
+//                        this.show = true;
+//                    }
+                    if (starttime != "" && endtime != "" && d1 > d2) {
+                        this.$toast('请输入正确的时间格式');
+                        this.show = true;
+                        return false;
+                    }
+                    if (starttime == ''&&endtime != "" ){
+                        this.$toast('请选择开始时间');
+                        this.show = true;
+                        return false
+                    }
+                    var  post_data = {
+                        id: data_id,
+                        method: 'moisture.content',
+                        nonce: 'moisture.content',
+                        starttime: starttime,
+                        endtime: endtime,
+                        merchant: merchant,
+                        channel: channel,
+                        page_num: page_num,
+                        remember_token:obj.remember_token
+                    };
+                    var _self = this;
+                    axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                        .then(function (response) {
+                            if (response.data.code == 200) {
+                                _self.afterdata = response.data.afterdata/100
+                                var datas = response.data.data.data;
+                                _self.items = datas
+                                for(var i = 0;i<_self.items.length;i++){
+                                    _self.date =  _self.items[i]['created_at'].substr(0,10)
+                                    _self.items[i]['created_at']=_self.date;
+                                }
+                            }
+
+                        }).catch(function (error) {
+                    });
+                },
+                cancel(){
+                    this.show = false;
+                }
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>

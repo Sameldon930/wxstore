@@ -1,0 +1,114 @@
+/*
+    头部类
+*/
+.fn-header-title{
+    margin: 0 30%;
+    font-size: 2rem;
+    font-weight: normal;
+    text-align: center;
+    display: block;
+    word-wrap: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.fn-header-title a{
+    color: white;
+}
+
+
+/**
+  颜色公共类
+ */
+.fn-backgourd-black{
+    background: black;
+}
+.fn-color-black{
+    color: #1a1a1a;
+}
+.fn-color-light-orange{ color:#ffa800; }
+
+.fn-color-light-gray{ color: #666666}
+/**
+字体公共类
+ */
+.fn-font-llg{ font-size: 3rem;color: white;}
+.fn-font-default{ font-size: 1.6rem;color: white;}
+.fn-font-xs{ font-size: 1.1rem}
+.fn-font-sm{font-size: 0.9rem}
+.fn-font-center{text-align:center}
+
+
+/**
+首页样式
+ */
+.fn-index-header{
+    background-image: url("../img/index/ih@2x.png");
+    background-size:100% 100%;
+    height: 42vh;
+}
+.fn-index-top{
+    padding: calc( (42vh * 0.4 - 3rem - 1.4rem)/3.8 - 2px) 0px;
+}
+.fn-index-top-main{
+    height: calc( 42vh * 0.45);
+    padding: calc( (42vh * 0.45 - 1.6rem - 1.1rem)/4) 0px calc( (42vh * 0.45 - 1.6rem - 1.1rem)/4 );
+}
+.fn-index-main{
+    height: 15vh;
+    padding: calc( (42vh * 0.45 - 1.6rem - 1.6rem)/4 ) 0px ;
+}
+
+.fn-index-footer{
+    height: 21vh;
+}
+.fn-index-footer-top{
+
+    line-height: 6vh;
+}
+
+.fn-index-footer-center{
+
+    line-height: 12vh;
+}
+
+
+/**
+我的页面样式
+ */
+.fn-my-header{
+    background-image: url("../img/mh@2x.jpg");
+    background-size:100% 100%;
+    /*height: 30vh;*/
+}
+.fn-my-header .am-u-sm-3{width: calc(2.4rem + 35px + 1.4rem)}
+.fn-my-header .am-u-sm-9{width: calc(100% - 2.4rem - 35px - 1.4rem)}
+.fn-my-name{ height: 50px; line-height: 35px; font-size: 1.6rem}
+.fn-my-user{ height: calc(1.6rem + 35px)}
+
+.fn-my-button{
+    color: white;
+    background: linear-gradient(#ffd80d,#ffb400);
+    border: none;
+    border-radius: 28px;
+    font-size: 1.9rem;
+    display: block;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    line-height: 4.4rem;
+    box-shadow: 0px 5px 8px rgba(255,222,144,0.5);
+}
+.fn-my-list{
+    height: 30px;
+    line-height: 30px;
+}
+.fn-my-button-location{
+    position: absolute;
+    top: calc(38vh *  0.98);
+}
+.fn-my-button-update{
+    position: absolute;
+    right: 0;
+    top: 2vh;
+}

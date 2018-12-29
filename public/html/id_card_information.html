@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <title>个人信息</title>
+</head>
+<style>
+    body{
+        background-color: #f5f5f5;
+    }
+    .wis-background-white{
+        background-color: white;
+        padding: 5px;
+    }
+    .boder-box{
+        height: 6px;
+    }
+    .wis-Middle{
+        text-align: center;
+        color: #BBBBBB;
+    }
+    .wis-img{
+        margin-top: 6px;
+    }
+    .van-nav-bar > div > i {
+        color: #BBBBBB !important;
+    }
+    .border-gray{
+        width:100%;
+        height: 1.5em;
+        background: #F0F0F0;
+    }
+    .van-popup--right{
+        width: 100%;
+        height: 100%;
+    }
+    .van-button{
+        width: 70%;
+        text-align: center;
+        margin-left: 15%;
+        margin-top: 4%;
+        background-color: #2F8CE5!important;
+    }
+    .van-button__text{
+        color: white;
+    }
+    .am-text-xs{
+        text-align: center;
+    }
+    .am-g .am-g{
+        margin-right: 0;
+    }
+    .van-button--large {
+        height: 50px!important;
+        line-height: 48px!important;
+        width: 70%!important;
+    }
+</style>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <div class="row" style="margin:10px 0 10px 0">
+            <div>
+                <van-nav-bar fixed title="个人信息" left-arrow  @click-left="onClickLeft"/>
+            </div>
+        </div>
+    </div>
+    <div class="border-gray"></div>
+        <div class="am-g">
+            <van-row class="zong">
+                <div class="wis-background-white  am-u-sm-6">
+                    <div class=" wis-border-dashed am-margin am-margin-horizontal-0">
+                        <label for="file1" style="display: none">身份证正面</label>
+                        <div class="am-g am-text-center am-padding-sm" id="wrap_figure_box1">
+                            <van-uploader  :before-read="frontImg" >
+                                <div id="for_figure_box1">
+                                    <div class="am-u-sm-3" v-if="front_img == null || front_img == ''">
+                                        <img src='../img/i/ch.png'  height="70" width="70">
+                                    </div>
+                                    <div  class="am-u-sm-3 avatar-item" v-else>
+                                        <img  :src="front_img" height="90" width="150">
+                                    </div>
+                                </div>
+                            </van-uploader>
+                        </div>
+                    </div>
+                    <div class="am-text-xs am-margin-top-xs">
+                        <span class="">身份证正面</span><br>
+                        <span CLASS="wis-text-gray">卡片完整字迹清晰无PS</span><br>
+                    </div>
+                </div>
+
+                <div class="wis-background-white  am-u-sm-6">
+                    <div class=" wis-border-dashed am-margin am-margin-horizontal-0">
+                        <label for="file2" style="display: none">身份证反面</label>
+                        <div class="am-g am-text-center am-padding-sm" id="wrap_figure_box2">
+                            <div id="for_figure_box2">
+                                <van-uploader  :before-read="backImg" >
+                                    <div class="am-u-sm-6" v-if="back_img == null || back_img == ''">
+                                        <img src='../img/i/ci.png'  height="70" width="70">
+                                    </div>
+                                    <div  class="am-u-sm-6 avatar-item" v-else>
+                                        <img  :src="back_img" height="90" width="150">
+                                    </div>
+                                </van-uploader>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="am-text-xs am-margin-top-xs">
+                        <span class="">身份证反面</span><br>
+                        <span CLASS="wis-text-gray">卡片完整字迹清晰无PS</span><br>
+                    </div>
+                </div>
+            </van-row>
+            <van-cell-group>
+                <van-field
+                        v-model="identity_num"
+                        label="身份证号:"
+                        placeholder="请输入法人身份证号"
+                        icon="clear"
+                        @click-icon="identity_num = ''"
+                        required
+                        maxlength = 18
+                />
+            </van-cell-group>
+        </div>
+        <van-button @click="next_license">下一步</van-button>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/dist/lrz.bundle.js"></script>
+</body>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id = obj.id;
+    var post_data = {
+        id:data_id,
+        method: 'user.info',
+        nonce: 'user.info',
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                back_img:"",
+                front_img:"",
+                identity_num:"",
+                login_check: false,
+                img:'../img/i/nn.png',
+                config:'../img/i/nn.png',
+            };
+        },
+        mounted() {
+            var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+            if (obj == null) {
+                this.login_check = false;
+                this.$dialog.confirm({
+                    title: '请先登陆',
+                }).then(() => {
+                    window.location.href = 'login.html';
+                }).catch(() => {
+                    window.history.go(-1);
+                });
+            } else {
+                this.login_check = true;
+                var post_data = {
+                    method: 'get.merchant.id',
+                    nonce: 'get.merchant.id',
+                    id:data_id,
+                    remember_token: obj.remember_token,
+                };
+                var _self = this
+                axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if (data.code == 200) {
+                            _self.front_img = data.data.identity_front == null ? _self.config : '../storage' + data.data.identity_front;
+                            _self.back_img = data.data.identity_contrary == null ? _self.config : '../storage' + data.data.identity_contrary;
+                            _self.identity_num = data.data.identity_num;
+
+                        } else {
+                            if (data.code != 202) {
+                                pop_error_msg(data.msg, _self)
+                            }
+                        }
+
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            }
+        },
+
+        methods: {
+            onClickLeft() {
+                window.history.go(-1)
+            },
+            onClickIndex() {
+                location.href = "../index.html"
+            },
+            myMerchant() {
+                location.href = "merchant.html"
+            },
+            frontImg(file){
+                var _self = this
+                lrz(file, {width: 1024}).then(function (rst) {
+                    _self.front_img = rst.base64
+                })
+            },
+            backImg(file){
+                var _self = this
+                lrz(file, {width: 1024}).then(function (rst) {
+                    _self.back_img = rst.base64
+                })
+            },
+            next_license(){
+                if(this.front_img == this.config){
+                    this.$toast('请上传身份证正面照');
+                    return false
+                }
+                if(this.back_img == this.config){
+                    this.$toast('请上传身份证反面照');
+                    return false
+                    return false
+                }
+                if(this.identity_num==null){
+                    this.$toast('请正确输入身份证号码');
+                    return false
+                }
+                if(this.identity_num.length<18&&this.identity_num.length==null){
+                    this.$toast('请正确输入身份证号码');
+                    return false
+                }
+                var res2 = /(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$)/
+                var reg = new RegExp(/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$)/);
+                if(!res2.test(this.identity_num)){
+                    this.$toast('身份证输入有误!');
+                    return false
+                }
+                var post_data = {
+                    method: 'save.identity',
+                    nonce: 'save.identity',
+                    front_img: this.front_img,
+                    back_img: this.back_img,
+                    identity_num:this.identity_num,
+                    id:data_id,
+                    remember_token: obj.remember_token,
+                };
+                var _self = this;
+                axios.post('/api/v1',api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if(data.code == 2001){
+                            _self.$toast(data.msg[0]);
+                        }
+                        if(data.code == 200 ){
+                            location.href = "./business_license.html"
+                        }else {
+                            pop_error_msg(data.msg,_self)
+                        }
+
+
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+
+            },
+        }
+
+    });
+
+
+</script>
+</html>

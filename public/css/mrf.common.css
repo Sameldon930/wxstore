@@ -1,0 +1,146 @@
+[v-cloak] {
+    display: none;
+}
+
+.van-dialog__confirm, .van-dialog__confirm:active {
+    color: #2F8CE5!important;
+}
+
+.van-tabbar-item--active {
+    color: #2F8CE5!important;
+}
+
+.hc-header{
+    height: 46px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 46px;
+    color: black;
+    background-color:  #ffffff;
+    position: fixed;
+    width: 100vw;
+    top: 0px;
+    z-index: 1;
+}
+.hc-header:before {
+    padding-top: 200px;
+    width: 100vw;
+}
+.hc-header .van-nav-bar{
+    background-color: #fff!important;
+}
+.hc-header .van-nav-bar .van-icon {
+    color: white;
+    vertical-align: middle;
+}
+header a{
+    color: white;
+}
+.hc-fixed-add-btn {
+    bottom: 70px;
+    left: 2em;
+    position: fixed;
+}
+.hc-fixed-delete-btn{
+    bottom: 70px;
+    right: 2em;
+    position: fixed;
+}
+.hc-img-center{
+    width: 100%;
+    text-align: center;
+    padding-bottom: 0.8em;
+    padding-top: 0.8em;
+}
+.hc-submit-dev{
+    text-align: center;
+    padding: 40px;
+}
+.hc-body-gray{
+    background: #f9f9f9;
+}
+
+.hc-padding-sm{
+    padding: 20px;
+}
+.hc-padding-right-sm{
+    padding-right: 20px;
+}
+.hc-padding-left-sm{
+    padding-left: 20px;
+}
+#app{
+    height: 100vh;
+}
+
+.init-app {
+    min-height: 100vh;
+    max-width:100vw;
+    background-color: #ffffff;
+    white-space:normal;
+    overflow-x:hidden;
+    overflow-y:auto;
+}
+a:hover,a:active,a:visited,a:link {
+    color: #000000;
+}
+.van-nav-bar__text,.van-nav-bar__title,.van-nav-bar__left span{
+    color: #000 !important;
+}
+.van-nav-bar__text:active {
+    background-color: transparent!important;
+    outline: -webkit-focus-ring-color auto 0px!important;
+}
+.fixed_nav_bar {
+    padding-top: 46px;
+    background-color: #f9f9f9;
+}
+.fixed_tab_bar {
+    padding-top: 60px;
+}
+.hc-padding-top-sm{
+    padding-top:1.2em;
+}
+.hc-padding-bottom-sm{
+    padding-bottom:1.2em;
+}
+.hc-padding-top-xs{
+    padding-top:0.8em;
+}
+.hc-padding-bottom-xs{
+    padding-bottom:0.8em;
+}
+.hc-check-btn{
+    width: 100px;
+}
+.van-nav-bar {
+    background-color: #ffffff !important;
+}
+.van-nav-bar > div > i {
+    color: #fff !important;
+}
+.hc-fixed-bottom-btn{
+    bottom: 0px;position: fixed;width: 100vw;
+}
+.hc-fixed-bottom-btn a{
+    color: white;
+}
+
+.hc-margin-bottom-xs{ margin-bottom: 0.8em;}
+.hc-margin-top-xs{ margin-top: 0.8em;}
+.hc-padding-xs{ padding:5px;}
+
+/****添加图片**/
+.text-right{
+    text-align: right;
+}
+.text-left{
+    text-align: left;
+}
+.text-center{
+    text-align: center;
+}
+
+.style-color {
+    background-color: #ff0000!important;
+}

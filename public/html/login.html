@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="../css/amazeui.css" rel="stylesheet">
+    <link href="../css/wis.css" rel="stylesheet">
+</head>
+<style>
+    .store{
+        float: right;
+       color: #3c8dbc;
+        margin-top: 8px;
+    }
+</style>
+<body    class=" login-bgimg ">
+        <div class="logo-wrapper am-g">
+            <div class="am-u-sm-offset-4 am-u-sm-4">
+                <img src="../img/logo.png" alt="" class="am-img-responsive" >
+            </div>
+        </div>
+        <form method="post" id="app1" action="../index.html" class="wis-form">
+            <div class="am-g">
+                <div class="am-u-sm-offset-1 am-u-sm-10 input-bg am-padding-sm">
+                    <div class = "am-u-sm-1 am-padding-left-xs" >
+                        <img src="../img/i/f@2x.png" height="18" width="18" >
+                    </div>
+                    <div class="am-u-sm-10 " style="color: #1a1a1a;">
+                        <input type="text"  v-model="mobile" id="mobile"  placeholder="请输入您的账号" class="wis-login-input " size="23">
+                    </div>
+                    <div class="am-u-sm-1 am-padding-left-xs" id="clear_mobile" v-on:click="clearMobile">
+                        <img src="../img/i/a@2x.png" height="12" width="12" >
+                    </div>
+                </div>
+            </div>
+            <div class="am-g ">
+                <div class="am-u-sm-10 am-u-sm-offset-1 am-text-right am-padding-vertical">
+                    <a href="../store/login.html" class="wis-text-gray am-text-sm">门店登录</a>
+                </div>
+            </div>
+            <div class="am-g am-margin-top-sm">
+                <div class="am-u-sm-offset-1 am-u-sm-10 input-bg  am-padding-sm">
+                    <div class = "am-u-sm-1 am-padding-left-xs" >
+                        <img src="../img/i/d@2x.png" height="18" width="18" >
+                    </div>
+                    <div class="am-u-sm-10" style="color: #1a1a1a;">
+                        <input type="password" v-model="password"  placeholder="请输入密码" id="password" class="wis-login-input " size="23" @keyup.enter="UserLogin">
+                    </div>
+                    <div class="am-u-sm-1 am-padding-left-xs" >
+                        <img src="../img/i/hide@2x.png"  width="15" id="password_img" @click="hideShowPsw">
+                    </div>
+                </div>
+            </div>
+            <div class="am-g ">
+                <div class="am-u-sm-10 am-u-sm-offset-1 am-text-right am-padding-vertical">
+                    <a href="user_modify.html" class="wis-text-gray am-text-sm">忘记密码</a>
+                </div>
+            </div>
+            <div class = "am-g am-margin-top-sm">
+                <div class = "am-u-sm-8 am-u-sm-offset-2 am-padding-top">
+                    <button type="button"  @click="UserLogin"  data-action="loading" class="am-btn wis-text-white am-text-lg wis-background-primary am-btn-block wis-login-border-radius">
+                        登录
+                    </button>
+                </div>
+            </div>
+
+        </form>
+</body>
+<script src="../js/bundle.js"></script>
+<script src="../js/wis.common.js"></script>
+<script>
+    //用户登录
+    var app = new Vue({
+        el: '#app1',
+        data: {
+            mobile:'',
+            password:'',
+            flag:true,
+        },
+        methods: {
+
+            getMobile: function () {
+                return this.mobile;
+            },
+            getPassword: function () {
+                return this.password;
+            },
+            clearMobile:function () {
+                $('#mobile').val('');
+            },
+            UserLogin:function(){
+                if(!this.flag){
+                    return;
+                }
+                this.flag=false;
+                var _self=this;
+                var post_data = {
+                    method: 'User.Login',
+                    real_mobile: this.getMobile(),
+                    nonce: 'User.Login',
+                    password: this.getPassword(),
+                };
+                axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        _self.flag=true;
+                        var data=response.data;
+                        if(data.code=='200'){
+                            window.localStorage.setItem('WIS_MRFMerchant.user',JSON.stringify(data.data));
+                            WIS_toast({msg:'登录成功', time:3500, location:'middle'});
+                            setTimeout(function(){
+                                window.location.href='../index.html'
+                            },2000);
+                        }else{
+                            WIS_toast({msg:data.msg, time:3000, location:'middle'});
+                        }
+
+//                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                        return false;
+            },
+            hideShowPsw: function (e) {
+                hideShowPsw(e);
+            },
+        }
+    })
+
+
+</script>
+
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!--<link rel="shortcut icon" href="favicon.ico" title="Favicon">-->
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png"/>
+    <meta name="description" itemprop="description" content=""/>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet"/>
+    <link href="../css/wis.css" rel="stylesheet"/>
+    <link href="../css/fn.css" rel="stylesheet"/>
+    <link href="../css/chart.css" rel="stylesheet"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+
+    <style>
+
+        .card-header > div {
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+        .highcharts-credits{
+            display: none;
+        }
+        .mrf-hide{
+            display: none;
+        }
+        .mrf-hide{
+            height: 100px;
+            text-align: center;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar title="月账单"
+                     left-arrow
+                     @click-left="onClickLeft"
+                     fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+    <!--月交易金额  开始-->
+    <div class="fn-my-header">
+        <div style="display: flex;justify-content: space-between;">
+            <div class="fn-index-top " style="margin-left: 2em;">
+                <div class="fn-font-default  am-padding-vertical">月交易金额（元）</div>
+                <div class="fn-font-llg am-padding-top">{{month_money}}</div>
+            </div>
+            <div class="fn-index-top ">
+                <div style="margin-right: 1em;">
+                    <input  value="时间筛选" style="font-size:1.6rem;width: 22vw;height:4vh;text-align: center;background: #2e8ce4;color: #fff;" type="text" id="time" readonly="readonly" @click="onClickIndex" >
+                </div>
+            </div>
+        </div>
+
+        <div class="am-g " style="margin-left: 2em;">
+            <div class="am-u-sm-5 fn-font-default am-padding-0">
+                <span class="fn-font-sm">交易笔数(笔)</span>
+                <span style="font-size: 12px;margin-left: 1em;">{{month_number}}</span>
+
+            </div>
+
+            <div class="am-u-sm-7 fn-font-default  am-padding-0">
+                <span class="fn-font-sm">客均价（元）</span>
+                <span style="font-size: 12px;margin-left: 1em;">{{month_avg}}</span>
+            </div>
+        </div>
+    </div>
+    <!--月交易金额  结束-->
+    <van-popup v-model="show" position="bottom" :overlay="false">
+        <van-datetime-picker
+                v-model="currentDate"
+                type="year-month"
+                :formatter="formatter"
+                @cancel = "cancel"
+                @confirm = "confirm"
+        />
+    </van-popup>
+
+
+    <!--交易金额分布  开始-->
+    <div  class="am-tabs am-tabs-default"  >
+        <div  class="pic-title" >
+            <img src="../img/i/tree.png"  height="18" width="18" >
+            <span class="pic-title-word">交易金额分布</span>
+        </div>
+        <div class="row mrf-hide">暂无数据</div>
+        <div data-tab-panel-0 id="container1"  class="contain" ></div>
+        <!--交易金额分布  结束-->
+
+        <!--通道交易占比  开始-->
+        <div class="pic-title">
+            <img src="../img/i/channel.png"  height="18" width="18" >
+            <span class="pic-title-word">通道交易占比</span>
+        </div>
+        <div class="row mrf-hide">暂无数据</div>
+        <div id="container" class="contain"></div>
+        <!--通道交易占比  结束-->
+    </div>
+</div>
+<div>
+
+</div>
+
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
+
+<!--交易明细-->
+<script>
+
+</script>
+
+
+<!--月账单-->
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFStore.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id  = obj.id;
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                active: 0,
+                avatar: '',
+                id: '',
+                login_check: false,
+                computedTime: 0,
+                month_number: "",//笔数
+                month_money: "",//月交易金额
+                month_avg: '',//客均价
+                wechat:'',//微信
+                pay:'',//支付宝,
+                show:false,
+                currentDate: new Date(),
+            }
+        },
+        methods: {
+            onClickLeft(){
+                location.href = "../store_index.html"
+            },
+            onClickIndex(){
+                this.show = true;
+            },
+            cancel(){
+                this.show = false;
+            },
+            formatter(type, value) {
+                if (type === 'year') {
+                    return `${value}年`;
+                } else if (type === 'month') {
+                    return `${value}月`
+                }
+                return value;
+            },
+            confirm(v){
+                var endvalue = new Date(v)
+                Y = endvalue.getFullYear() + '-';
+                M = (endvalue.getMonth()+1 < 10 ? '0'+(endvalue.getMonth()+1) : endvalue.getMonth()+1);
+                var time =  $('#time').val(Y+M)
+                var time =  $('#time').val()
+                this.show=false;
+                var post_data2 = {
+                    id:data_id,
+                    method: 'store.month',
+                    nonce: 'store.month',
+                    time:time,
+                    type:3
+                };
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data2, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        var wechat = response.data.wechat;
+                        var pay = response.data.pay;
+                        var month = response.data.month;
+                        var month_money = response.data.month_money;
+                        var month_number = response.data.month_number;
+                        var month_avg = response.data.month_avg;
+                        if (response.data.code == 200) {
+                            if(month_money==0){
+                                $('#container1').hide()
+                                $('.mrf-hide').show()
+                                $('#container').hide()
+                                _self.month_number = month_number;//月交易笔数
+                                _self.month_money = month_money;//月交易金额
+                                _self.month_avg = month_avg;//月交易均价
+                                _self.wechat = wechat / self.month_number * 100;//微信百分比分布
+                                _self.pay = pay / self.month_number * 100;//支付宝百分比分布
+                                _self.month = month[0];//月中金额大小分布
+                                return
+                            }else {
+                                $('#container1').show()
+                                $('.mrf-hide').hide()
+                                $('#container').show()
+                                _self.month_number = month_number;//月交易笔数
+                                _self.month_money = month_money;//月交易金额
+                                _self.month_avg = month_avg;//月交易均价
+                                _self.wechat = wechat / _self.month_number * 100;//微信百分比分布
+                                _self.pay = pay / _self.month_number * 100;//支付宝百分比分布
+                                _self.month = month[0];//月中金额大小分布
+                                var chart = {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false
+                                };
+                                var title = {
+                                    text: '通道交易占比'
+                                };
+                                var tooltip = {
+                                    pointFormat: '{name}<b>{point.percentage:.1f}%</b>'
+                                };
+                                var plotOptions = {
+                                    pie: {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                                            style: {
+                                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                            }
+                                        }
+                                    }
+                                };
+//                                console.log(_self.wechat)
+                                var series = [{
+                                    type: 'pie',
+                                    name: '',
+                                    data: [
+                                        ['微信', _self.wechat],
+                                        ['支付宝', _self.pay],
+//                            ['其他',50.0]
+                                    ]
+                                }];
+
+                                var json = {};
+                                json.chart = chart;
+                                json.title = title;
+                                json.tooltip = tooltip;
+                                json.series = series;
+                                json.plotOptions = plotOptions;
+                                $('#container').highcharts(json);
+                                var chart = {
+                                    type: 'column'
+                                };
+                                var title = {
+                                    text: '本月交易金额'
+                                };
+                                var subtitle = {
+//                                text: 'Source: runoob.com'
+                                };
+                                var xAxis = {
+                                    categories: ['1~10', '11~50', '51~100', '101~500', '500+'],
+                                    crosshair: true
+                                };
+                                var yAxis = {
+                                    min: 0,
+                                    title: {
+                                        text: '数量'
+                                    }
+                                };
+                                var tooltip = {
+                                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.1f} 笔</b></td></tr>',
+                                    footerFormat: '</table>',
+                                    shared: true,
+                                    useHTML: true
+                                };
+                                var plotOptions = {
+                                    column: {
+                                        pointPadding: 0.2,
+                                        borderWidth: 0
+                                    }
+                                };
+                                var credits = {
+                                    enabled: false
+                                };
+
+                                var series = [{
+                                    name: '本月',
+                                    data: [_self.month['1~10'], _self.month['11~50'], _self.month['51~100'], _self.month['101~500'], _self.month['500+']],
+                                }];
+
+                                var json = {};
+                                json.chart = chart;
+                                json.title = title;
+                                json.subtitle = subtitle;
+                                json.tooltip = tooltip;
+                                json.xAxis = xAxis;
+                                json.yAxis = yAxis;
+                                json.series = series;
+                                json.plotOptions = plotOptions;
+                                json.credits = credits;
+                                $('#container1').highcharts(json);
+                            }
+                        } else {
+                            if (response.data.code == '005') {
+                                this.login_check = false;
+                                window.localStorage.removeItem('WIS_MRFStore.user');
+                                this.$dialog.confirm({
+                                    title: '请重新登录',
+                                    message: response.data.msg
+                                }).then(() => {
+                                    window.location.href = '../store/login.html';
+                                }).catch(() => {
+                                    window.location.href = '../store_index.html';
+                                });
+                            }
+                        }
+                    }).catch(function (error) {
+                });
+            }
+
+        },
+        mounted () {
+            var post_data = {
+                method: 'store.month',
+                nonce: 'store.month',
+                id: data_id,
+                type:"",
+            }
+            var self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'wis')).then(response => {
+                        var data = response.data;
+                        var wechat = response.data.wechat;
+                        var pay = response.data.pay;
+                        var month = response.data.month;
+                        var month_money = response.data.month_money;
+                        var month_number = response.data.month_number;
+                        var month_avg = response.data.month_avg;
+                if (response.data.code == '200') {
+                    if(month_money == 0){
+                        $('#container1').hide()
+                        $('.mrf-hide').show()
+                        $('#container').hide()
+                        self.id = data.id;
+                        self.month_number = data.month_number;//月交易笔数
+                        self.month_money = data.month_money;//月交易金额
+                        self.month_avg = data.month_avg;//月交易均价
+                        self.wechat = wechat/self.month_number*100;//微信百分比分布
+                        self.pay = pay/self.month_number*100;//支付宝百分比分布
+                        self.month = month[0];//月中金额大小分布
+                        return
+                    }else{
+                        $('#container1').show()
+                        $('.mrf-hide').hide()
+                        $('#container').show()
+                        self.id = data.id;
+                        self.month_number = data.month_number;//月交易笔数
+                        self.month_money = data.month_money;//月交易金额
+                        self.month_avg = data.month_avg;//月交易均价
+                        self.wechat = wechat/self.month_number*100;//微信百分比分布
+                        self.pay = pay/self.month_number*100;//支付宝百分比分布
+                        self.month = month[0];//月中金额大小分布
+
+                        var chart = {
+                            plotBackgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false
+                        };
+                        var title = {
+                            text: '通道交易占比'
+                        };
+                        var tooltip = {
+                            pointFormat: '{name} <b>{point.percentage:.1f}%</b>'
+                        };
+                        var plotOptions = {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                                    style: {
+                                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                    }
+                                }
+                            }
+                        };
+                        var series= [{
+                        type: 'pie',
+                            name: '',
+                            data: [
+                                ['微信',self.wechat],
+                                ['支付宝',self.pay],
+    //                            ['其他',50.0]
+                            ]
+                        }];
+
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.tooltip = tooltip;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+                        $('#container').highcharts(json);
+                        var chart = {
+                            type: 'column'
+                        };
+                        var title = {
+                            text: '本月交易金额'
+                        };
+                        var subtitle = {
+    //                                text: 'Source: runoob.com'
+                        };
+                        var xAxis = {
+                            categories: ['1~10','11~50','51~100','101~500','500+'],
+                            crosshair: true
+                        };
+                        var yAxis = {
+                            min: 0,
+                            title: {
+                                text: '数量'
+                            }
+                        };
+                        var tooltip = {
+                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                            '<td style="padding:0"><b>{point.y:.1f} 笔</b></td></tr>',
+                            footerFormat: '</table>',
+                            shared: true,
+                            useHTML: true
+                        };
+                        var plotOptions = {
+                            column: {
+                                pointPadding: 0.2,
+                                borderWidth: 0
+                            }
+                        };
+                        var credits = {
+                            enabled: false
+                        };
+
+                        var series= [{
+                            name: '本月',
+                            data:[self.month['1~10'],self.month['11~50'],self.month['51~100'],self.month['101~500'],self.month['500+']],
+                        }];
+
+                        var json = {};
+                        json.chart = chart;
+                        json.title = title;
+                        json.subtitle = subtitle;
+                        json.tooltip = tooltip;
+                        json.xAxis = xAxis;
+                        json.yAxis = yAxis;
+                        json.series = series;
+                        json.plotOptions = plotOptions;
+                        json.credits = credits;
+                        $('#container1').highcharts(json);
+
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+
+        }
+    });
+</script>
+
+</body>
+</html>

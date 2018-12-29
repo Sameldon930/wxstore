@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <!--<link rel="stylesheet" href="https://unpkg.com/vant/lib/vant-css/index.css">-->
+    <style>
+        .card-header>div{
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+        .mrf-but{
+            text-align: center;
+            margin-top: 15px;
+        }
+        .avatar-item img{
+            width: 70px;
+            height: 70px;
+            border: 1vw solid #ffffff;
+            border-radius: 50%;
+        }
+        .van-uploader{
+            width: 71%!important;
+        }
+        .border-sort{
+            height: 5px;
+            background: #F0F0F0;
+        }
+        .am-padding-sm {
+            padding: 6px!important;
+        }
+        .border-my{
+            height: 1px;
+            background: #F0F0F0;
+        }
+        .am-modal-btn {
+            color: #0e90d2!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app"  v-cloak>
+    <div>
+        <van-nav-bar title="我的" fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div class="my-header am-g wis-background-primary  am-padding-sm" >
+        <div class="am-u-sm-3">
+            <van-uploader  :before-read="compress">
+                <div  v-if="avatar == null || avatar == ''">
+                    <img src='../img/i/touxiang@2x.png'  height="70" width="70">
+                </div>
+                <div  class="avatar-item" v-else>
+                    <img  :src="avatar">
+                </div>
+            </van-uploader>
+        </div>
+        <div class="am-u-sm-9 wis-text-white am-text-left am-text-sm" style="padding: 6px 0  0 12px;">
+            <div>商户名称:{{name}}</div>
+            <div>手机号:{{real_mobile}}</div>
+            <div>ID:{{mobile}}</div>
+        </div>
+
+    </div>
+
+
+
+    <div class="border-sort" ></div>
+
+
+    <a href="receipt.html">
+
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0 ">
+            <div class="am-u-sm-6  ">
+                <img src="../img/receivables.png" width="25" height="25" class="am-margin-right">
+                <span class="font-height ">我的收款码</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+    <div class="border-my"></div>
+
+    <!--<a href="rate.html">-->
+        <!--<div class="am-g wis-background-white  am-padding-sm am-padding-top-0">-->
+            <!--<div class="am-u-sm-6  ">-->
+                <!--<img src="../img/rate.png" width="25" height="25" class="am-margin-right">-->
+                <!--<span class="font-height ">我的费率</span>-->
+            <!--</div>-->
+            <!--<div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">-->
+                <!--<img src="../img/i/bf@2x.png " height="18">-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</a>-->
+
+
+    <a href="user_modify.html">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0">
+            <div class="am-u-sm-6  ">
+                <img src="../img/modify.png" width="25" height="25" class="am-margin-right">
+                <span class="font-height ">修改密码</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+    <div class="border-my"></div>
+
+    <a href="we_chat.html">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0">
+            <div class="am-u-sm-6  ">
+                <img src="../img/wechat.png" width="25" height="25" class="am-margin-right">
+                <span class="font-height ">公众号通知绑定</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+
+    <div class="col-xs-12 mrf-but">
+        <input class="btn btn-primary btn1" type="button" @click="logout" value="安全退出" style="width: 70%">
+    </div>
+    <div>
+        <van-tabbar v-model="active">
+            <van-tabbar-item icon="wap-nav" @click="homePage">首页</van-tabbar-item>
+            <van-tabbar-item icon="points-mall" @click="myBusiness">经营中心</van-tabbar-item>
+            <van-tabbar-item icon="contact">我的</van-tabbar-item>
+        </van-tabbar>
+    </div>
+</div>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/app1.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/dist/lrz.bundle.js"></script>
+<script src="../js/vant.min.js"></script>
+
+
+
+
+
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFStore.user'));
+    if(obj == null){
+        window.location.href = '../store/login.html';
+    }
+    var data_id = obj.id;
+
+    var base_url = '../storage';
+
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                active: 2,
+                token: '',
+                avatar: '',
+                temp_avatar: '',
+                name: '',
+                mobile: '',
+                cleaner_mobile:"",
+                login_check: false,
+                computedTime: 0,
+                real_mobile:'',
+                status:1
+            }
+        },
+        methods: {
+            homePage() {
+                location.href = '../store_index.html';
+            },
+            myBusiness(){
+                location.href="./bussiness.html"
+            },
+            goMerchantDetail(){
+                location.href = 'merchant_detail.html'
+            },
+            compress(file){
+                var _self = this
+                lrz(file, {width: 1024}).then(function (rst) {
+                    _self.avatar = rst.base64
+                })
+                this.$dialog.confirm({
+                    title: '更换头像',
+                    message: '确定修改为当前头像？'
+                }).then(() => {
+                    this.saveAvatar();
+                }).catch(() => {
+                    this.avatar = this.temp_avatar;
+                });
+
+            },
+            saveAvatar() {
+                var _self = this
+                var user_id = obj.id;
+                var token = obj.remember_token;
+                var post_data = {
+                    method: 'save.avatar',
+                    nonce: 'save.avatar',
+                    id: user_id,
+                    remember_token: token,
+                    avatar: this.avatar
+                };
+                console.log(post_data)
+                axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        console.log(data)
+                        if(data.code == 200 ){
+                            pop_error_msg(data.msg,_self)
+                        }else{
+                            if(response.data.code == '005') {
+                                this.login_check = false;
+                                window.localStorage.removeItem('WIS_MRFStore.user');
+                                this.$dialog.confirm({
+                                    title: '请重新登录',
+                                    message: response.data.msg
+                                }).then(() => {
+                                    window.location.href = '../store/login.html';
+                                }).catch(() => {
+                                    window.location.href = '../store_index.html';
+                                });
+                            } else{
+                                pop_error_msg(data.msg,_self)
+                            }
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            },
+            logout(){
+                this.$dialog.confirm({
+                    title: '安全退出',
+                    message: '确定安全退出登录？'
+                }).then(() => {
+
+                        window.localStorage.removeItem('WIS_MRFStore.user');
+                        this.login_check = false;
+                        this.$toast('退出登录成功！');
+
+                        this.computedTime = 2;
+                        this.timer = setInterval(() => {
+                        this.computedTime--;
+                        if (this.computedTime == 0) {
+                            clearInterval(this.timer);
+                            window.location.href = '../store/login.html';
+                        }
+            }
+            , 1000);
+            }).catch(() => {
+                });
+
+            }
+        },
+        mounted () {
+            if (obj == null) {
+                this.login_check = false;
+                this.$dialog.confirm({
+                    title: '请先登录',
+
+                }).then(() => {
+                    window.location.href = '../store/login.html';
+            }).catch(() => {
+                    window.location.href = '../store/login.html';
+            });
+            } else {
+                this.login_check = true;
+
+            }
+            var post_data = {
+                method: 'user.get.one',
+                nonce: 'user.get.one',
+                id: data_id,
+                remember_token: obj.remember_token,
+                avatar: this.avatar
+            }
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf')).then(response => {
+                if (response.data.code == '200') {
+                    var user =response.data.data;
+                    this.name = user.name == ''?'未设置':user.name;
+                    this.avatar = user.avatar == null ? '': base_url + user.avatar;
+                    this.temp_avatar = user.avatar == null ? '': base_url + user.avatar;
+                    this.mobile = user.mobile == ''?'未设置':user.mobile;
+                    this.real_mobile = user.real_mobile == null?'未设置':user.real_mobile;
+                }
+                if(response.data.code == '2001') {
+                    this.login_check = false;
+                    window.localStorage.removeItem('WIS_MRFStore.user');
+                    this.$dialog.confirm({
+                        title: '请重新登录',
+                        message: response.data.msg
+                    }).then(() => {
+                        window.location.href = '../store/login.html';
+                    })
+                }
+        }).catch(error => {
+                console.log(error);
+        });
+
+        }
+    });
+</script>
+
+</body>
+</html>

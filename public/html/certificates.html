@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <title>证件信息</title>
+</head>
+<style>
+    .wis-img{
+        margin-top: 6px;
+    }
+    .container{
+        background-color: #f5f5f5;
+    }
+    .wis-SFZ{
+        text-align: center;
+        margin-top: 50px;
+    }
+    h4{
+        margin-top: 20px;
+        font-size: 14px;
+        color: #101010;
+    }
+    .van-nav-bar > div > i {
+        color: #BBBBBB !important;
+    }
+</style>
+<body>
+<div id="app" v-cloak="">
+<div class="container-fluid">
+    <div class="row" style="margin:10px 0 10px 0">
+        <div>
+            <van-nav-bar fixed title="证件信息" left-arrow  @click-left="onClickLeft"/>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 wis-SFZ" v-if="front_img == null || front_img == ''">
+            <img src='../img/i/ci.png'  height="150" width="80%">
+            <h4>身份证正面照</h4>
+        </div>
+         <div class="col-xs-12 wis-SFZ" v-else>
+             <img  :src="front_img" height="150px" width="80%">
+             <h4>身份证正面照</h4>
+         </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 wis-SFZ" v-if="back_img == null || back_img == ''">
+            <img src='../img/i/ci.png'  height="150" width="80%">
+            <h4>身份证反面照</h4>
+        </div>
+        <div class="col-xs-12 wis-SFZ" v-else>
+            <img  :src="back_img" height="150px" width="80%">
+            <h4>身份证反面照</h4>
+        </div>
+    </div>
+</div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+</body>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id = obj.id;
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                front_img:"",
+                back_img:"",
+                config:'../img/i/nn.png',
+            };
+        },
+        mounted() {
+            var post_data = {
+                method: 'user.get.one',
+                nonce: 'user.get.one',
+                id: data_id,
+                remember_token: obj.remember_token,
+            };
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data.status;
+
+                    if (response.data.code == 200) {
+                        _self.front_img = data.identity_front == null ? _self.config : '../storage' + data.identity_front;
+                        _self.back_img = data.identity_contrary == null ? _self.config : '../storage' + data.identity_contrary;
+                    }
+
+                }).catch(function (error) {
+                // console.log(error);
+            });
+        },
+
+        methods: {
+            onClickLeft(){
+                window.history.go(-1)
+            },
+            onClickIndex(){
+                location.href="../index.html"
+            },
+            myMerchant(){
+                location.href="merchant.html"
+            }
+        }
+
+    });
+
+
+</script>
+</html>

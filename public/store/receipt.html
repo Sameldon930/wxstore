@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="./favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/receipt.css" rel="stylesheet">
+    <title>我的收款码</title>
+</head>
+<body>
+<div id="app" v-cloak>
+
+    <div class="pay-top">
+        <img src="../img/mrf-logo.png" alt="每人付logo" width="90"><span>每人付</span>
+    </div>
+
+    <div class="pay-center">
+        <div  class="pay-center-content" >
+            <div  class="pay-number" >
+                <div id="qrcode" ></div>
+                <div class="merchant">{{name}}</div>
+            </div>
+            <div  class="pay-example" >
+                <div class="example-scan">
+                    <img src="../img/scan.png" alt="打开扫一扫" width="45" height="45">
+                    <div>打开扫一扫</div>
+                </div>
+                <img src="../img/direction.png" alt="" width="45" height="45" >
+                <div class="example-scan">
+                    <img src="../img/number.png" alt="对准二维码" width="45" height="45" >
+                    <div>对准二维码</div>
+                </div>
+                <img src="../img/direction.png" alt=""  width="45" height="45">
+                <div class="example-scan">
+                    <img src="../img/finish.png" alt="付款成功" width="45" height="45">
+                    <div>付款成功</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div  class="pay-bottom" >
+        <div class="pay-bottom-left">
+                <img src="../img/wechat-pay.png" alt="微信图片" height="40" width="100">
+        </div>
+        <div class="pay-bottom-left">
+            <img src="../img/ali-pay.png" alt="支付宝图片" height="40" width="100">
+        </div>
+    </div>
+</div>
+</body>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/qrcode.js"></script>
+
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFStore.user'));
+    if(obj == null){
+        window.location.href = '../store/login.html';
+
+    }
+    var data_id = obj.id
+    var post_data = {
+        id:data_id,
+        method: 'receipt.code',
+        nonce:'receipt.code',
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                code:"",
+                name:""
+            };
+        },
+        mounted() {
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+//                    console.log(data)
+                    if (data.code == 200) {
+                        _self.name = data.data.name;
+                        _self.code = data.model;
+                        var url = data.model;
+                        var qrcode = new QRCode(document.getElementById("qrcode"),{
+                            width:180,
+                            height:180
+                        });
+                        qrcode.makeCode(url);
+                    }
+
+                }).catch(function (error) {
+                 console.log(error);
+            });
+        },
+
+    });
+
+</script>
+</html>

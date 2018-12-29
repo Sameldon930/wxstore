@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/chart.css" rel="stylesheet" />
+    <title>每人付</title>
+    <style>
+        .card-header>div{
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+        .border-gray{
+            width:100%;
+            height: 1em;
+            background: #F0F0F0;
+        }
+        .van-button--primary {
+            color: #fff;
+            background-color: #2F8CE5!important;
+            border: 1px solid #2F8CE5!important;
+        }
+        .mrf-but{
+            margin-top: 3vh;
+            text-align: center;
+        }
+        .van-nav-bar{
+            background-color: #fff !important;
+
+        }
+        .van-nav-bar__text,.van-nav-bar__title,.van-nav-bar__left span{
+            color: #1a1a1a !important;
+        }
+        .van-icon-arrow::before{
+            color:#1a1a1a!important;
+        }
+        .van-dialog{
+            top: 60%!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar title="提现" left-arrow @click-left="onClickLeft"  fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+    <div class= "fn-my-header">
+        <div class="fn-index-top " style="margin-left: 2em;">
+            <div class="fn-font-default am-padding-vertical">可提现金额（元）</div>
+            <div class="fn-font-llg am-padding-top">{{account == ''?0:account}}</div>
+        </div>
+    </div>
+
+    <div class="border-gray"></div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="money"
+                    label="提现金额"
+                    icon="clear"
+                    @click-icon= "money = ''"
+                    placeholder="请输入提现金额"
+                    required
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <div class="form-group">
+            <div style="margin-left: 8px;"><span style="color: red;">*</span>请选择银行卡</div>
+            <select class="form-control" v-if="items==''" @click="addCard" >
+            </select>
+            <select class="form-control" v-model="savings_bank_id" v-else>
+                <option value="0">请选择银行卡</option>
+                <option  v-for="item in items"  v-bind:value="item.value">{{item.text}}</option>
+            </select>
+        </div>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="mobile"
+                    label="绑定手机"
+                    icon="clear"
+                    @click-icon= "mobile = ''"
+                    placeholder="请输入手机号"
+                    required
+
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    center
+                    v-model="mobile_code"
+                    label="短信验证码"
+                    placeholder="请输入短信验证码"
+            >
+                <van-button slot="button" size="small" type="primary" :disabled="smsButton" @click="getSms" v-show="!computedTime">获取验证码</van-button>
+                <!--<van-button slot="button" size="small" type="primary" disabled @click="getSms" v-show="computedTime">已发送({{computedTime}}s)</van-button>-->
+            </van-field>
+        </van-cell-group>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 mrf-but">
+            <input class="btn btn-primary" type="button"  value="确认提现"  @click="withdrawal" tyle="width: 40%">
+        </div>
+    </div>
+
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+
+
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+    var data_id  = obj.id;
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                mobile: '',
+                password: '',
+                mobile_code: '',
+                password_confirm: '',
+                computedTime: 0,
+                money:'',
+                bank:'',
+                account:'',
+                show: false,
+                items:[],
+                savings_bank_id:0
+            };
+        },
+        mounted () {
+            var post_data = {
+                method: 'agent.withdraw',
+                nonce: 'agent.withdraw',
+                id: data_id,
+            }
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf')).then(response => {
+                if (response.data.code == '200') {
+                    var data = response.data;
+                    var bank = response.data.bank;
+                    _self.account = data.data;
+                    for (var i =0;i<bank.length;i++){
+                       var account = bank[i]['account_no']
+                       var bank_name = bank[i]['bank_name']
+                       var id = bank[i]['id']
+                        var lastFour = account.slice(-4);
+                        var d = new Array(account.length-3).join("*")+lastFour;
+                       var str = d.replace(/\s/g,'').replace(/(.{4})/g,"$1 ");
+                        _self.items.push(
+                            {text: bank_name+'-'+str,value:id}
+                        );
+                    }
+                } else {
+                    if (response.data.code == '005') {
+                        this.login_check = false;
+                        window.localStorage.removeItem('WIS_MRF.user');
+                        this.$dialog.confirm({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = '../subordinate/agent_login.html';
+                        }).catch(() => {
+                            window.location.href = '../agent_index.html';
+                        });
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+
+        },
+        methods: {
+            onClickLeft() {
+                location.href="./account.html"
+            },
+            withdrawal() {
+                if(this.savings_bank_id=='0'){
+                    this.$toast('您还没有选择到账卡！请选择。')
+                }
+                var post_data = {
+                    method: 'agent.withdrawal.action',
+                    nonce: 'agent.withdrawal.action',
+                    money: this.money,
+                    savings_bank_id: this.savings_bank_id,
+                    id: obj.id,
+                    remember_token: obj.remember_token,
+                };
+                var _self=this;
+                if (this.password == this.password_confirm){
+                    axios.post('/api/v1',api_data_sign(post_data, 'mrf')).then(function(response){
+                        if (response.data.code == 200) {
+                            _self.$toast(response.data.data.msg);
+                            setTimeout(function(){
+                                window.location.href='./agent_index.html';
+                            },3000)
+                        }if (response.data.code == 2001){
+                            _self.$toast(response.data.msg[0]);
+                        }
+                        else{
+                            _self.$toast(response.data.msg);
+                        }
+                    }).catch(function(error) {
+                        console.log(error);
+                    });
+                } else {
+                    this.$toast("密码和确认密码不一致");
+                }
+            },
+            getSms() {
+                let post_data = {
+                    method: 'mobile.msg.get',
+                    nonce: 'mobile.msg.get',
+                    mobile: this.mobile,
+                };
+                axios.post('/api/v1',api_data_sign(post_data, 'mrf')).then(response => {
+                    this.$toast(response.data.msg);
+                    console.log(response.data.msg)
+                    this.computedTime = 60;
+                    this.timer = setInterval(() => {
+                        this.computedTime--;
+                        if (this.computedTime == 0) {
+                            clearInterval(this.timer)
+                        }
+                    }, 1000);
+                }).catch(error => {
+                    this.$toast('获取短信失败');
+                    console.log(error);
+                });
+            },
+            addCard(){
+                this.$dialog.confirm({
+                    title: '暂无银行卡',
+                    message: '确定添加银行卡?'
+                }).then(()=> {
+//                    window.localStorage.removeItem('WIS_MRF.user');
+                this.computedTime = 2;
+                this.timer = setInterval(() => {
+                        this.computedTime--;
+                if (this.computedTime == 0) {
+                    clearInterval(this.timer);
+                    window.location.href = './my_card.html';
+                }
+            }, 1000);
+            }).catch(() => {
+                    window.location.href = 'deposit.html';
+            });
+            }
+        },
+        computed: {
+            smsButton() {
+                if (this.mobile.length>10)
+                    return false;
+                return true;
+            }
+        },
+    });
+</script>
+
+</body>
+</html>

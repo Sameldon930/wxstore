@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <style>
+        .van-button--bottom-action {
+            background-color: #e51c23!important;
+        }
+        .van-button--primary {
+            color: #fff;
+            background-color: #2F8CE5!important;
+            border: 1px solid #2F8CE5!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar fixed
+                     title="重置密码"
+                     left-arrow
+                     @click-left="onClickLeft"/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="old_pwd"
+                    label="密码"
+                    icon="clear"
+                    placeholder="请输入密码"
+                    required
+                    @click-icon="mobile = ''"
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="password"
+                    type="password"
+                    label="新密码"
+                    placeholder="请输入新密码"
+                    required
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="password_confirm"
+                    type="password"
+                    label="确认密码"
+                    placeholder="请输入确认密码"
+                    required
+            />
+        </van-cell-group>
+    </div>
+    <div style="width: 90vw;display: flex;justify-content: center;padding: 12px 5vw;">
+        <van-button type="primary" bottom-action @click="resetPassword">确认修改</van-button>
+    </div>
+
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFStore.user'));
+    if(obj == null){
+        window.location.href = '../store/login.html';
+    }
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                old_pwd: '',
+                password: '',
+                password_confirm: '',
+                computedTime: 0,
+            };
+        },
+        methods: {
+            onClickLeft() {
+                window.history.back();
+            },
+            resetPassword() {
+               var user_id = obj.id
+                let post_data = {
+                    method: 'store.rese.pwd',
+                    nonce: 'store.rese.pwd',
+                    old_pwd: this.old_pwd,
+                    password: this.password,
+                    password_confirm: this.password_confirm,
+                    mobile_code: this.mobile_code,
+                    user_id: user_id
+                };
+                if (this.password == this.password_confirm) {
+                    axios.post('/api/v1', api_data_sign(post_data, 'mrf')).then(response => {
+                        if (response.data.code == 200) {
+                            this.$dialog.alert({
+                                title: '修改成功',
+                                message: '密码修改成功，是否前往登录？'
+                            }).then(() => {
+                                setTimeout(function () {
+                                    window.location.href = '../store/login.html';
+                                }, 1000)
+
+                            });
+                        } else {
+                            this.$toast(response.data.msg);
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    });
+                } else {
+                    this.$toast("新密码和确认密码不一致");
+                }
+            },
+        }
+    });
+</script>
+
+</body>
+</html>
+

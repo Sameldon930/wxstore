@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <title>个人信息</title>
+</head>
+<style>
+    body{
+        background-color: #f5f5f5;
+    }
+    .wis-background-white{
+        background-color: white;
+        padding: 5px;
+    }
+    .boder-box{
+        height: 6px;
+    }
+     .wis-Middle{
+        text-align: center;
+        color: #BBBBBB;
+    }
+    .wis-img{
+        margin-top: 6px;
+    }
+    .van-nav-bar > div > i {
+        color: #BBBBBB !important;
+    }
+    .border-gray{
+        width:100%;
+        height: 1.5em;
+        background: #F0F0F0;
+    }
+    .van-popup--right{
+        width: 100%;
+        height: 100%;
+    }
+    .van-button{
+        width: 70%;
+        text-align: center;
+       margin-left: 15%;
+        margin-top: 4%;
+        background-color: #2F8CE5!important;
+    }
+    .van-button__text{
+        color: white;
+    }
+    .am-text-xs{
+        text-align: center;
+    }
+    .wis-background-white{
+        margin-left: 25%;
+    }
+    .am-g .am-g{
+        margin-right: 0;
+    }
+</style>
+<body>
+<div id="app">
+<div class="container-fluid">
+    <div class="row" style="margin:10px 0 10px 0">
+        <div>
+            <van-nav-bar fixed title="个人信息" left-arrow  @click-left="onClickLeft"/>
+        </div>
+    </div>
+</div>
+    <div class="border-gray"></div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="name"
+                    label="企业名称"
+                    placeholder="请输入企业名称"
+                    icon="clear"
+                    @click-icon="name = ''"
+                    required
+            />
+        </van-cell-group>
+    </div>
+
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="address"
+                    label="地址"
+                    placeholder="请输入地址"
+                    icon="clear"
+                    @click-icon="address = ''"
+                    required
+            />
+        </van-cell-group>
+    </div>
+
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="username"
+                    label="法人姓名"
+                    placeholder="请输入法人姓名"
+                    icon="clear"
+                    @click-icon="username = ''"
+                    required
+            />
+        </van-cell-group>
+    </div>
+
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="email"
+                    label="邮箱"
+                    placeholder="请输入邮箱"
+                    icon="clear"
+                    @click-icon="email = ''"
+                    required
+            />
+        </van-cell-group>
+    </div>
+
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="alipay"
+                    label="支付宝账号"
+                    placeholder="请输入支付宝账号"
+                    icon="clear"
+                    @click-icon="alipay = ''"
+                    required
+            />
+        </van-cell-group>
+    </div>
+    <van-button @click="next_card">下一步</van-button>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/dist/lrz.bundle.js"></script>
+</body>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id = obj.id;
+    var post_data = {
+        id:data_id,
+        method: 'user.info',
+        nonce: 'user.info',
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                name:"",
+                address:"",
+                username:"",
+                email:"",
+                alipay:"",
+            };
+        },
+        mounted () {
+            var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+            if (obj == null) {
+                this.login_check = false;
+                this.$dialog.confirm({
+                    title: '请先登陆',
+                    message: ''
+                }).then(() => {
+                    window.location.href = 'login.html';
+                }).catch(() => {
+                    window.history.go(-1);
+                });
+            } else {
+                this.remember_token = obj.remember_token;
+                this.id = obj.id;
+                this.login_check = true;
+                var post_data = {
+                    method: 'get.merchant.info',
+                    nonce: 'get.merchant.info',
+                    id: this.id,
+                    remember_token: this.remember_token,
+                };
+
+                var _self = this
+                axios.post('/api/v1',api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if(data.code == 200 ){
+                            _self.name = data.data.company_name;
+                            _self.address = data.data.merchant_address;
+                            _self.username = data.data.business_person;
+                            _self.email = data.data.email;
+                            _self.alipay = data.data.alipay;
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            }
+
+        },
+        methods: {
+            onClickLeft() {
+                window.history.go(-1)
+            },
+            onClickIndex() {
+                location.href = "../index.html"
+            },
+            myMerchant() {
+                location.href = "merchant.html"
+            },
+            next_card(){
+                var post_data = {
+                    method: 'save.merchant.shop',
+                    nonce: 'save.merchant.shop',
+                    name: this.name,
+                    address:this.address,
+                    username:this.username,
+                    email:this.email,
+                    alipay:this.alipay,
+                    id:data_id,
+                    remember_token: obj.remember_token,
+                };
+                var _self = this;
+                axios.post('/api/v1',api_data_sign(post_data, 'hc'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if(data.code == 200){
+                            if(data.code == 200){
+                                location.href = "./id_card_information.html"
+                            }
+                        }
+                        if (data.code == 2001){
+                            WIS_toast({
+                                msg: data.msg,
+                                time: 2000,
+                                location: 'middle'
+                            })
+                            return false;
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+
+            }
+        }
+
+    });
+
+
+</script>
+</html>

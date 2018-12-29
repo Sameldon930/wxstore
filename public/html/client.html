@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <script src="../js/echarts.min.js"></script>
+    <style>
+        .am-tabs-bd {
+            border: 0;
+        }
+
+        .am-tabs-default .am-tabs-nav > .am-active a {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .am-tabs-default .am-tabs-nav > .am-active:after {
+            content: '';
+            display: block;
+            margin: 0 1.5em;
+        }
+
+        .am-tabs-default .am-tabs-nav > li:not(last-child) {
+            border-right: 1px solid #e9e9e9;
+        }
+
+        .merchant {
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .merchant .merchant-type {
+            display: inline-block;
+            font-size: 1.125em;
+            padding-left: 5px;
+        }
+
+        .merchant .merchant-rate {
+            color: #ff6000;
+        }
+
+        .merchant .merchant-img {
+            vertical-align: sub;
+        }
+
+        .btn-agency {
+            font-size: 1.8rem;
+            text-align: center !important;
+            background: #ff7c2b;
+            margin-top: 1.6rem;
+            color: #ffffff;
+            height: 46px;
+            line-height: 46px;
+            z-index: 1030;
+        }
+
+        .merchant .merchant-rank:nth-child(2) {
+            margin-top: 0.6em;
+        }
+
+        .merchant .merchant-rank:last-child:after {
+            height: 0.6em;
+        }
+
+        [v-cloak] {
+            visibility: hidden;
+        }
+        .highcharts-credits{
+            display: none!important;
+        }
+    </style>
+</head>
+<body class=" wis-background-gray">
+<header data-am-widget="header" class="am-header wis-header-color am-header-fixed wis-text-white" style="position: absolute;">
+    <div class="am-header-left am-header-nav">
+        <a href="bussiness.html" >
+            <span class="am-icon-angle-left wis-text-white wis-back-icon-font"></span>
+        </a>
+    </div>
+    <h1 class="am-header-title ">顾客分析</h1>
+</header>
+
+<div data-am-widget="tabs" class="am-tabs am-tabs-default " id="app">
+    <div class="am-tabs-bd">
+        <div style="line-height: 18px;display: flex;justify-content: flex-start;margin: 1em auto;">
+            <img src="../img/i/overview.png"  height="18" width="18" >
+            <span style="margin-left:5px;line-height: 18px;">数据概述</span>
+        </div>
+        <div class= " fn-my-header fn-color-white" style="margin: 1vh auto;">
+            <div class="  fn-font-center  fn-index-top ">
+                <div class="fn-font-default am-padding-vertical">近30天消费顾客</div>
+                <div class="fn-font-llg am-padding-top" >789</div>
+            </div>
+
+            <div class="am-g fn-font-center">
+                <div class="am-u-sm-6 fn-font-default am-padding-0" >
+                    <span class="fn-font-sm">新顾客</span>
+                    <div>10</div>
+                </div>
+                <div class="am-u-sm-6 fn-font-default fn-color-white am-padding-0" >
+                    <span class="fn-font-sm">回流客</span>
+                    <div>6</div>
+                </div>
+            </div>
+        </div>
+        <div style="line-height: 18px;display: flex;justify-content: flex-start;margin: 1em auto;">
+            <img src="../img/i/channel.png"  height="18" width="18" >
+            <span style="margin-left:5px;line-height: 18px;">顾客构成与交易贡献占比</span>
+        </div>
+        <div  id="container1" style="width: 100%; height: 200px; margin: 7px  auto"></div>
+        
+
+    </div>
+</div>
+
+<script src="../js/bundle.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script language="JavaScript">
+    $(document).ready(function() {
+        var chart = {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        };
+        var title = {
+            text: ''
+        };
+        var tooltip = {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        };
+        var plotOptions = {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        };
+        var series= [{
+            type: 'pie',
+            name: 'Browser share',
+            data: [
+                ['微信',45.0],
+                ['支付宝',26.8],
+                ['其他',8.5]
+            ]
+        }];
+
+        var json = {};
+        json.chart = chart;
+        json.title = title;
+        json.tooltip = tooltip;
+        json.series = series;
+        json.plotOptions = plotOptions;
+        $('#container1').highcharts(json);
+    });
+</script>
+
+
+</body>
+</html>

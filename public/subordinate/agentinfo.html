@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/agentInfo.css" rel="stylesheet">
+    <title>每人付</title>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="container-fluid">
+
+            <div>
+                <van-nav-bar
+                        fixed title="我的信息"
+                        left-arrow
+                        @click-left="onClickLeft"
+                />
+            </div>
+        <div v-show="type == '个人'" v-cloak >
+            <div class="row wis-background-white" style="margin-top: 50px">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算人手机号</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                <span>
+                    {{cleaner_mobile}}
+                </span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>账户类型</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                <span>
+                    {{type}}
+                </span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算卡</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_deposit}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>身份证号</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_idcard}}</span>
+                </div>
+            </div>
+        </div>
+        <div  v-show="type == '个体工商户'" v-cloak>
+            <div class="row wis-background-white" style="margin-top: 50px">
+                <div class="col-xs-4 text-middle" >
+                    <span>公司名称</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{company_name==null?'未填写':company_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>对公账户</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                <span>
+                    {{company_account ==null?'未填写':company_account}}
+                </span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle">
+                    <span>法人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{legal_name ==null?'未填写':legal_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>账户类型</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{type}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>法人身份证</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{legal_idcard ==null?'未填写':legal_idcard}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>负责人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{manager_name==null?'未填写':manager_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>负责人手机号</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{manager_mobile==null?'未填写':manager_mobile}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle">
+                    <span>结算人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_name ==null?'未填写':cleaner_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle">
+                    <span>结算人手机号</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_mobile ==null?'未填写':cleaner_mobile}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算卡</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_deposit ==null?'未填写':cleaner_deposit}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算人身份证</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_idcard ==null?'未填写': cleaner_idcard}}</span>
+                </div>
+            </div>
+        </div>
+        <div  v-show="type == '企业'" v-cloak>
+            <div class="row wis-background-white" style="margin-top: 50px">
+                <div class="col-xs-4 text-middle" >
+                    <span>公司名称</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{company_name==null?'未填写':company_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>对公账户</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                <span>
+                    {{company_account ==null?'未填写':company_account}}
+                </span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>法人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{legal_name ==null?'未填写':legal_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>账户类型</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{type}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>法人身份证</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{legal_idcard ==null?'未填写':legal_idcard}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>负责人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{manager_name==null?'未填写':manager_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>负责人手机号</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{manager_mobile==null?'未填写':manager_mobile}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算人姓名</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_name ==null?'未填写':cleaner_name}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算人手机号</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_mobile ==null?'未填写':cleaner_mobile}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算卡</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_deposit ==null?'未填写':cleaner_deposit}}</span>
+                </div>
+            </div>
+            <div class="row boder-box"></div>
+            <div class="row wis-background-white">
+                <div class="col-xs-4 text-middle" >
+                    <span>结算人身份证</span>
+                </div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-6 wis-Middle">
+                    <span>{{cleaner_idcard ==null?'未填写': cleaner_idcard}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/wis.common.js"></script>
+</body>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+    var data_id = obj.id;
+    var post_data = {
+        id:data_id,
+        method: 'agent.data',
+        nonce: 'agent.data',
+        remember_token:obj.remember_token
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                company_name:"",
+                type:"",
+                legal_name:"",
+                cleaner_idcard:"",
+                cleaner_mobile:"",
+                login_check: false,
+                cleaner_name:'',
+                cleaner_deposit:'',
+                company_account:'',
+                legal_idcard:'',
+                manager_name:'',
+                manager_mobile:'',
+            };
+        },
+        mounted() {
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    if (data.code == 200) {
+                        _self.company_name = data.data[0].company_name;
+                        _self.cleaner_mobile = data.data[0].cleaner_mobile;
+                        _self.type = data.data[0].type;
+                        _self.legal_name = data.data[0].legal_name;
+                        _self.cleaner_idcard = data.data[0].cleaner_idcard;
+                        _self.cleaner_name = data.data[0].cleaner_name;
+                        _self.cleaner_deposit = data.data[0].cleaner_deposit;
+                        _self.company_account = data.data[0].company_account;
+                        _self.legal_idcard = data.data[0].legal_idcard;
+                        _self.manager_name = data.data[0].manager_name;
+                        _self.manager_mobile = data.data[0].manager_mobile;
+
+                    }
+                    if(response.data.code == '0005') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+                    if(response.data.code == '2001') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+                }).catch(function (error) {
+                 console.log(error);
+            });
+        },
+        methods: {
+            onClickLeft(){
+                window.history.go(-1)
+            }
+        }
+
+    });
+
+
+</script>
+</html>

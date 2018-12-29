@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="favicon.ico" title="Favicon">
+    <title>每人付-代理端</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link href="./css/mrf.common.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/agent-index.css" rel="stylesheet">
+    <style>
+        .van-col-5{
+            width: 20%!important;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak >
+    <div>
+        <van-nav-bar title="首页" fixed />
+    </div>
+    <div class="fixed_nav_bar"></div>
+    <div>
+        <van-swipe :autoplay="3000" class="hc-swipe">
+            <van-swipe-item v-for="(image,index) in images" :key="index">
+                <a :href="url[index]">
+                    <img :src="image" style="width: 100%;height: 100%;"/>
+                </a>
+            </van-swipe-item>
+        </van-swipe>
+    </div>
+    <div style="padding:10px 0px;background-color: #fff;margin: 0 1em 5px ;">
+        <van-row >
+
+            <!--旗下商户 开始-->
+            <a href="./subordinate/agent_bussiness.html" >
+                <van-col span="5">
+                    <div class="index-content">
+                        <img src="./img/agent_bussiness.png" width="40px"  height="40px" />
+
+                        <div class="bottom-text">旗下商户</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--旗下商户 结束-->
+            <!--旗下代理 开始-->
+            <a href="./subordinate/agent_subordinate.html" >
+                <van-col span="5">
+                    <div class="index-content">
+                        <img src="./img/subordinate_logo.png" width="40px"  height="40px" />
+
+                        <div class="bottom-text" >旗下代理</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--旗下代理 结束-->
+            <!--通道成本 开始-->
+            <a href="./subordinate/cost_channel.html" >
+                <van-col span="5">
+                    <div class="index-content">
+                        <img src="./img/cost_channel.png" width="40px"  height="40px">
+                        <div class="bottom-text">渠道成本</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--通道成本 结束-->
+            <!--分润明细 开始-->
+            <a href="./subordinate/benefit.html" >
+                <van-col span="5">
+                    <div class="index-content">
+                        <img src="./img/benefit.png" width="40px"  height="40px">
+                        <div class="bottom-text">分润明细</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--分润明细 结束-->
+            <!--账户 开始-->
+            <a href="./subordinate/account.html" >
+                <van-col span="5">
+                    <div class="index-content">
+                        <img src="./img/account.png" width="40px"  height="40px">
+                        <div class="bottom-text">账户</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--账户 结束-->
+
+
+        </van-row>
+    </div>
+    <div id="msg">
+        <div class="boder-bod"></div>
+        <a href="../subordinate/agent_system_message.html">
+            <div class="message-box">
+                <div class="message-img">
+                    <img src="./img/sys-msg.png"  height="40px" width="60px" alt="">
+                </div>
+                <div class="message-content">
+                    <div class="message-title">{{message.title}}</div>
+                    <div class="message-text">{{message.text}}</div>
+                </div>
+                <div class="message-direction">
+                    <img src="./img/i/bf@2x.png" height="20px" alt="">
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="boder-bod"></div>
+
+    <!--今日交易 开始-->
+    <div  class="day-trading">
+        <div  class="day-count" v-cloak>昨日分润/元</div>
+        <div class="day-money" v-cloak>{{yesterday_money}}</div>
+    </div>
+    <!--今日交易 结束-->
+    <!--昨日交易 开始-->
+    <div class="day-trading-1">
+        <div class="day-count">余额/元</div>
+        <div class="day-money" >{{balance}}</div>
+    </div>
+    <!--昨日交易 结束-->
+
+    <div>
+        <van-tabbar v-model="active">
+            <van-tabbar-item icon="wap-nav" >首页</van-tabbar-item>
+            <van-tabbar-item icon="pending-orders" @click="myBusiness" >报表</van-tabbar-item>
+            <van-tabbar-item icon="contact" @click="myMerchant">我的</van-tabbar-item>
+        </van-tabbar>
+    </div>
+
+</div>
+
+<script src="./js/app1.js"></script>
+<script src="./js/mrf.common.js"></script>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+    var data_id = obj.id;
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                active: 0,
+                avatar: '',
+                id: '',
+                login_check: false,
+                computedTime: 0,
+                token:'',
+                yesterday_money:"",
+                balance:'',
+                images:[],
+                message:'',
+                title:'',
+                url:[]
+
+            }
+        },
+        methods: {
+            myBusiness(){
+                location.href="./subordinate/statement.html"
+            },
+            myMerchant(){
+                location.href="./subordinate/agent_my.html"
+            },
+        },
+        mounted () {
+            var post_data = {
+                method: 'agent.wallet',
+                nonce: 'agent.wallet',
+                id:data_id,
+                remember_token: obj.remember_token,
+            }
+            var self = this;
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf')).then(response => {
+                if (response.data.code == '200') {
+                    var data =  response.data;
+                    var sides = response.data.side;
+                    var message = response.data.message;
+
+                    if(message==null){
+                        //后台接值传到前台
+                        var data =  response.data;
+                        var sides = response.data.side;
+                        self.id = data.id ;
+                        self.yesterday_money = data.yesterday_money ==''?0:data.yesterday_money;
+                        self.balance = data.balance ==''?0:data.balance;
+                        sides.forEach((item)=>{
+                            self.images.push(item.image);
+                            self.url.push(item.url)
+                        })
+                        $('#msg').hide();
+                        return;
+                    }
+                    //后台接值传到前台
+                    var data =  response.data;
+                    var sides = response.data.side;
+                    var message = response.data.message;
+                    self.id = data.id ;
+                    self.yesterday_money = data.yesterday_money ==''?0:data.yesterday_money;
+                    self.balance = data.balance ==''?0:data.balance;
+                    self.message = data.message;
+                    sides.forEach((item)=>{
+                        self.images.push(item.image);
+                        self.url.push(item.url)
+
+                    })
+
+                }
+                if (response.data.code == '0005') {
+                    self.login_check = false;
+                    window.localStorage.removeItem('WIS_MRFAgent.user');
+                    self.$dialog.alert({
+                        title: '请重新登录',
+                        message: response.data.msg
+                    }).then(() => {
+                        window.location.href = './subordinate/agent_login.html';
+                    })
+                }
+                if (response.data.code == '2001') {
+                    self.login_check = false;
+                    window.localStorage.removeItem('WIS_MRFAgent.user');
+                    self.$dialog.alert({
+                        title: '请重新登录',
+                        message: response.data.msg
+                    }).then(() => {
+                        window.location.href = './subordinate/agent_login.html';
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            });
+
+        }
+    });
+</script>
+
+</body>
+</html>

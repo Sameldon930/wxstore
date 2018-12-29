@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <title>个人信息</title>
+    <style>
+        body {
+            font-size: 12px;
+        }
+
+        a, a:hover {
+            color: white;
+        }
+
+        .wis-header-color {
+            background: #fff;
+        }
+
+        .wis-text-white {
+            color: #1a1a1a;
+        }
+
+        .am-margin-horizontal-10px {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+        .card-wrap {
+            position: relative;
+            margin-top: 8px;
+            border-radius: 4px;
+        }
+
+        .card-wrap .card-num {
+            color: white;
+            font-size: 1.6em;
+            margin-top: 0.8rem;
+            margin-bottom: 0.8rem;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .card-wrap .card-bank {
+            padding-left: 0.6rem;
+        }
+
+        .card-wrap .card-name {
+            font-weight: 700;
+        }
+
+        .card-wrap .card-img-i {
+            padding: 0.3rem 0 0 1.6rem;
+        }
+
+        .card-wrap .card-img-b {
+
+            content: '';
+            width: 132px;
+            height: 102px;
+            display: block;
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-repeat: no-repeat;
+            background-size: 132px 102px;
+        }
+
+        .card-wrap .btn-del {
+            position: absolute;
+            right: 14px;
+            top: 6px;
+            z-index: 10050;
+        }
+
+        .wis-l-height {
+            line-height: 47px;
+        }
+
+        .wis-font-size {
+            font-size: 20px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+        .am-header .am-header-title{
+            font-size: 16px;
+            color: white;
+        }
+        .wis-header-color {
+            background: #2F8CE5!important;
+        }
+        .wis-text-white {
+            color: white;
+            font-size: 24px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="">
+    <header data-am-widget="header" class="am-header wis-header-color am-header-fixed">
+
+        <div class="am-header-left am-header-nav">
+            <a href="agent_my.html" class="">
+                <span class="am-icon-angle-left wis-text-white wis-back-icon-font"></span>
+            </a>
+        </div>
+
+        <h1 class="am-header-title wis-text-white" style="margin-top: 13px">
+            银行卡
+        </h1>
+
+        <div class="am-header-right am-header-nav wis-text-white">
+        </div>
+    </header>
+</div>
+<div id="app1" style="margin-top: 50px">
+
+    <div v-if="show_empty==0">
+        <div v-cloak v-for="item in items" class="am-margin-horizontal-10px" v-on:click="jump(item.id)">
+            <div class="card-wrap am-g" :class="item.bank_class">
+                <div class="am-padding-top-sm">
+                    <div class="am-u-sm-2 card-img-i">
+                        <img :src="item.img_i" alt="银行" height="34" width="34" v-cloak>
+                    </div>
+                    <div class="am-u-sm-10 card-bank wis-text-white">
+                        <div class="wis-font-18 card-name" v-text="item.bank_name"></div>
+                        <div class="wis-font-12">银行卡</div>
+                    </div>
+                </div>
+
+                <div class="am-u-sm-offset-2 am-u-sm-10 card-num">
+                    <span>**** **** **** </span>
+                    <span v-text="item.account_no_4"></span>
+                </div>
+                <div class="card-img-b">
+                    <img :src="item.img_b" alt="银行" height="102" width="132" v-cloak>
+                </div>
+                <div class="btn-del an-u-sm-1 wis-text-white" v-on:click.stop="del(item.id)" style="z-index: 0;">
+                    <span class="wis-font-18">&times;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak v-else class="am-margin-top-xl">
+        <no-data></no-data>
+    </div>
+
+    <div class="wis-header" v-on:click="wis_click">
+        <button class="am-navbar  am-text-center wis-background-primary">
+            <span class="am-text-lg" style="color: #fff;">新增银行卡</span>
+        </button>
+    </div>
+</div>
+
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/wis.common.js"></script>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if (obj == null) {
+        window.location.href = '../subordinate/agent_login.html';
+    } else {
+        var token = obj.remember_token;
+        var user_id = obj.id;
+    }
+    var app = new Vue({
+        el: '#app1',
+        data: {
+            account_no: '',
+            bank_name: '',
+            credit_mobile: '',
+            items: [],
+            message: '',
+            user_id: '',
+            show_empty: 0,
+        },
+        created: function () {
+            var post_data = {
+                method: 'credit.card.get.list',
+                nonce: 'credit.card.get.list',
+                remember_token: token,
+                id: user_id
+            };
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    if (response.data.code == '0005') {
+                        window.location.href = '../subordinate/agent_login.html'
+                    } else {
+                        var bankMap = {
+                            '中国银行': 'bc',
+                            '中国工商银行': 'icbc',
+                            '中国建设银行': 'ccb',
+                            '兴业银行': 'cib',
+                            '招商银行': 'cmb',
+                            '交通银行': 'boc',
+                            '北京银行': 'bob',
+                            '中国光大银行': 'ceb',
+                            '广发银行': 'cgb',
+                            '平安银行': 'pab',
+                            '浦发银行': 'spdb',
+                            '华夏银行': 'hxb',
+                            '中国农业银行': 'abc',
+                            '上海银行': 'bos',
+                            '中信银行': 'cnbc',
+                            '民生银行': 'cmsb',
+                            '中国邮政储蓄银行': 'post'
+                        };
+                        if (response.data.data == '') {
+
+                        } else {
+                            _self.items = response.data.data;
+                            _self.items.forEach(function (ele) {
+                                var bank_attr = bankMap[ele.bank_name];
+                                ele.img_i = '../img/i/bank/' + bank_attr + '_i.png';
+                                ele.img_b = '../img/i/bank/' + bank_attr + '_b.png';
+                                ele.account_no_4 = ele.account_no.substr(ele.account_no.length - 4)
+                                ele.bank_class = 'bank-' + bank_attr
+                            })
+                        }
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+        methods: {
+            jump: function (id) {
+//                window.location.href = 'my_change_card.html?id=' + id;
+                window.history.go(-1)
+            },
+            del:function (id) {
+//                console.log(id)
+                this.$dialog.confirm({
+                    title: '是否删除银行卡',
+                    message: '确认要删除这张信用卡吗？',
+                }).then(() => {
+                   this.onConfirm(id);
+                });
+            },
+            onConfirm: function (id) {
+                var post_data = {
+                    id: id,
+                    method: 'credit.card.delete',
+                    nonce: 'credit.card.delete',
+                    user_id: user_id,
+                    remember_token: token,
+                };
+                var _self = this
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var message = _self.message = response.data.msg;
+                        WIS_toast({
+                            msg: '删除成功',
+                            time: 1000,
+                            location: 'middle'
+                        })
+                        setTimeout(function () {
+                            window.location.href = 'my_card.html';
+                        }, 1000)
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+                    wis_click: function () {
+                            window.location.href = 'my_add_card.html';
+                    }
+                },
+            })
+
+</script>
+</body>
+</html>

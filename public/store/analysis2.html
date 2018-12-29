@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- Styles -->
+
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+
+    <link href="../css/chart.css" rel="stylesheet" />
+    <style>
+        .am-tabs-bd {
+            border: 0;
+        }
+        #tabs{
+            margin-top: 60px;
+        }
+        .am-tabs-default .am-tabs-nav > .am-active a {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .mrf-hide{
+            height: 100px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        .am-tabs-default .am-tabs-nav > .am-active:after {
+            content: '';
+            display: block;
+            margin: 0 1.5em;
+        }
+
+        .am-tabs-default .am-tabs-nav > li:not(last-child) {
+            border-right: 1px solid #e9e9e9;
+        }
+
+        .merchant {
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .merchant .merchant-type {
+            display: inline-block;
+            font-size: 1.125em;
+            padding-left: 5px;
+        }
+
+        .merchant .merchant-rate {
+            color: #ff6000;
+        }
+
+        .merchant .merchant-img {
+            vertical-align: sub;
+        }
+
+        .btn-agency {
+            font-size: 1.8rem;
+            text-align: center !important;
+            background: #ff7c2b;
+            margin-top: 1.6rem;
+            color: #ffffff;
+            height: 46px;
+            line-height: 46px;
+            z-index: 1030;
+        }
+        .mrf-date{
+            margin-top: 20px;
+            text-align: center;
+        }
+        .mrf-date input[type='text']{
+            width: 35%;
+            height: 33px;
+            line-height: 30px;
+            text-align: center;
+        }
+        .merchant .merchant-rank:nth-child(2) {
+            margin-top: 0.6em;
+        }
+
+        .merchant .merchant-rank:last-child:after {
+            height: 0.6em;
+        }
+
+        [v-cloak] {
+            visibility: hidden;
+        }
+        .highcharts-credits{
+            display: none!important;
+        }
+        .fn-font-llg{
+            font-size: 2.6rem;
+        }
+        .mrf-hide{
+            display: none;
+        }
+        .am-tabs-default .am-tabs-nav a {
+            color: #222222;
+            line-height: 42px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class=" wis-background-gray">
+
+<div data-am-widget="tabs" class="am-tabs am-tabs-default" id="app" v-cloak>
+    <div class="container-fluid">
+        <div class="row" style="margin:1px 0px;">
+            <div>
+                <van-nav-bar fixed title="交易分析" left-arrow  @click-right="onClickIndex" @click-left="onClickLeft"/>
+            </div>
+        </div>
+    </div>
+    <div id="tabs">
+        <ul class="am-tabs-nav am-cf">
+            <li class="am-active wis-background-white"><a href="analysis1.html">日数据</a></li>
+            <li class="wis-background-white"><a href="analysis2.html">周数据</a></li>
+            <li class="wis-background-white"><a href="analysis3.html">月数据</a></li>
+        </ul>
+        <div class="am-tabs-bd" id="tabs-2" style="z-index: -1">
+            <!--数据概述 开始-->
+            <div class="pic-title">
+                <img src="../img/i/overview.png"  height="18" width="18">
+                <span class="pic-title-word">数据概述</span>
+            </div>
+            <div class= " fn-my-header fn-color-white" style="margin: 1vh auto;">
+                <div class="  fn-font-center  fn-index-top ">
+                    <div style="font-size: 2.4rem;color: #fff;">交易金额</div>
+                    <div class="fn-font-llg am-padding-top" >{{ money==0?0:money }}</div>
+                </div>
+
+                <div class="am-g fn-font-center">
+                    <div class="am-u-sm-6 fn-font-default am-padding-0" >
+                        <span style="font-size: 1.5rem;color: #fff;">交易笔数</span>
+                        <div style="font-size: 14px;color: #FF9800;">{{ count==0? 0:count }}</div>
+                    </div>
+                    <div class="am-u-sm-6 fn-font-default fn-color-white am-padding-0" >
+                        <span style="font-size: 1.5rem;color: #fff;">客单价</span>
+                        <div style="font-size: 14px;color: #FF9800;">{{ dataToday==0?0:dataToday }}</div>
+                    </div>
+                </div>
+            </div>
+            <!--数据概述 结束-->
+            <!--通道占比 开始-->
+            <div  class="passageway pic-title">
+                <img src="../img/i/channel.png"  height="18" width="18" >
+                <span class="pic-title-word">通道占比</span>
+            </div>
+            <div class="row mrf-hide">暂无数据</div>
+            <div data-tab-panel-0 id="container2" class="contain"></div>
+
+            <!--通道占比 结束-->
+
+            <!--交易金额分布 开始-->
+            <div class="passageway pic-title">
+                <img src="../img/i/tree.png"  height="18" width="18" >
+                <span class="pic-title-word">交易金额分布</span>
+            </div>
+            <div class="row mrf-hide">暂无数据</div>
+            <div data-tab-panel-0 id="container" class="contain-1"></div>
+            <!--通道占比 结束-->
+
+
+        </div>
+    </div>
+</div>
+
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script language="JavaScript">
+    $(document).ready(function() {
+
+        var obj = JSON.parse(window.localStorage.getItem('WIS_MRFStore.user'));
+        if(obj == null){
+            window.location.href = '../store/login.html';
+        }
+        var data_id  = obj.id;
+        var post_data = {
+            id:data_id,
+            method: 'store.chart',
+            nonce: 'store.chart',
+            Identification:2
+        };
+        var getDays = function ()
+        {
+            var now = new Date;
+            var day = now.getDay ();
+            var week = "7123456";
+            var first = 0 - week.indexOf (day);
+            var f = new Date;
+            f.setDate (f.getDate () + first);
+            var last = 6 - week.indexOf (day);
+            var l = new Date;
+            l.setDate (l.getDate () + last);
+            return [
+                f.toLocaleTimeString(), l.toLocaleDateString()
+            ];
+        }
+        var app = new Vue({
+            el: "#app",
+            data() {
+                return {
+                    money: "",
+                    count: "",
+                    dataToday:"",
+                    wx: "",
+                    zfb: "",
+                    currentDate: new Date(),
+                    show:false
+                };
+            },
+            mounted() {
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var money = response.data.data;
+                        var count = response.data.count;
+                        var wx = response.data.wx;
+                        var zfb = response.data.zfb;
+                        var cm = response.data.section;
+                        var dataToday = response.data.dataToday;
+//                    var zfb = response.data.zfb;
+//                    console.log(count);
+                        if (response.data.code == 200) {
+                            if (money == 0) {
+                                $('#container2').hide()
+                                $('.mrf-hide').show()
+                                $('#container').hide()
+                                return
+                            } else {
+//                        _self.items = data.data;
+                                _self.money = null ? '暂无' : money;
+                                _self.count = count;
+                                _self.dataToday = dataToday;
+                                _self.wx = wx / count;
+                                _self.zfb = zfb / count;
+                                _self.guest = money / count;
+                                _self.cm = cm;
+                                var chart = {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false
+                                };
+                                var title = {
+                                    text: '通道交易占比'
+                                };
+                                var tooltip = {
+                                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                                };
+                                var plotOptions = {
+                                    pie: {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                                            style: {
+                                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                            }
+                                        }
+                                    }
+                                };
+                                var series = [{
+                                    type: 'pie',
+                                    name: '占比',
+                                    data: [
+                                        ['微信', _self.wx * 100],
+                                        ['支付宝', _self.zfb * 100],
+//                                    ['其他',8.5]
+                                    ]
+                                }];
+                                var json = {};
+                                json.chart = chart;
+                                json.title = title;
+                                json.tooltip = tooltip;
+                                json.series = series;
+                                json.plotOptions = plotOptions;
+                                $('#container2').highcharts(json);
+
+                                var chart = {
+                                    type: 'column'
+                                };
+                                var title = {
+                                    text: '周交易金额量'
+                                };
+                                var subtitle = {
+//                                text: 'Source: runoob.com'
+                                };
+                                var xAxis = {
+                                    categories: ['1~10', '11~50', '51~100', '101~500', '500+'],
+                                    crosshair: true
+                                };
+                                var yAxis = {
+                                    min: 0,
+                                    title: {
+                                        text: '数量'
+                                    }
+                                };
+                                var tooltip = {
+                                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.1f} 笔</b></td></tr>',
+                                    footerFormat: '</table>',
+                                    shared: true,
+                                    useHTML: true
+                                };
+                                var plotOptions = {
+                                    column: {
+                                        pointPadding: 0.2,
+                                        borderWidth: 0
+                                    }
+                                };
+                                var credits = {
+                                    enabled: false
+                                };
+                                var series = [{
+                                    name: '本周',
+                                    data: [_self.cm['0'], _self.cm['1'], _self.cm['2'], _self.cm['3'], _self.cm['4']],
+                                }];
+
+                                var json = {};
+                                json.chart = chart;
+                                json.title = title;
+                                json.subtitle = subtitle;
+                                json.tooltip = tooltip;
+                                json.xAxis = xAxis;
+                                json.yAxis = yAxis;
+                                json.series = series;
+                                json.plotOptions = plotOptions;
+                                json.credits = credits;
+                                $('#container').highcharts(json);
+
+
+                            }
+                        }
+
+                    }).catch(function (error) {
+
+                });
+            },
+
+
+            methods: {
+                onClickLeft(){
+                    location.href="bussiness.html"
+                },
+                onClickIndex(){
+                    location.href="../store_index.html"
+                },
+                myMerchant(){
+                    location.href="merchant.html"
+                },
+                startconfirm(){
+                    this.show = true
+                },
+                changeend(e){
+                    var index = e.getValues()
+//                    console.log(index)
+                    var date = index.join("-");
+//                    console.log(date)
+                    $('#date-sx').html(date)
+                },
+                query:function (v) {
+                    this.show = false
+                    var startvalue = new Date(v)
+                    Y = startvalue.getFullYear() + '-';
+                    M = (startvalue.getMonth()+1 < 10 ? '0'+(startvalue.getMonth()+1) : startvalue.getMonth()+1);
+                    $('#date-sx').html(Y+M)
+                    var date =  $('#date-sx').html()
+                    if (date==""){
+                        this.$toast('请选择日期');
+                    }
+                    var post_data1 = {
+                        id: data_id,
+                        method: 'store.chart',
+                        nonce: 'store.chart',
+                        type:2,
+                        date:date,
+                    };
+                    var _self = this;
+                    axios.post('/api/v1', api_data_sign(post_data1, 'mrf'))
+                        .then(function (response) {
+                            var money = response.data.data;
+                            var count = response.data.count;
+                            var dataToday = response.data.dataToday;
+                            var wx = response.data.wx;
+                            var zfb = response.data.zfb;
+                            var cm = response.data.section;
+                            if (response.data.code == 200) {
+                                if(money==0){
+                                    $('#container3').hide()
+                                    $('.mrf-hide').show()
+                                    $('#container').hide()
+                                    _self.money = null ? '暂无' : money;
+                                    _self.count = count;
+                                    _self.dataToday = dataToday;
+                                }else{
+                                    $('#container3').show()
+                                    $('#container').show()
+                                    $('.mrf-hide').hide()
+                                    _self.money = null ? '暂无' : money;
+                                    _self.count = count;
+                                    _self.dataToday = dataToday;
+                                    _self.wx =  wx / count;
+                                    _self.zfb = zfb / count;
+                                    _self.cm = cm;
+
+                                    var chart = {
+                                        plotBackgroundColor: null,
+                                        plotBorderWidth: null,
+                                        plotShadow: false
+                                    };
+                                    var title = {
+                                        text: '通道交易占比'
+                                    };
+                                    var tooltip = {
+                                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                                    };
+                                    var plotOptions = {
+                                        pie: {
+                                            allowPointSelect: true,
+                                            cursor: 'pointer',
+                                            dataLabels: {
+                                                enabled: true,
+                                                format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                                                style: {
+                                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                                }
+                                            }
+                                        }
+                                    };
+
+
+                                    var series = [{
+                                        type: 'pie',
+                                        name: '占比',
+                                        data: [
+                                            ['微信', _self.wx * 100],
+                                            ['支付宝', _self.zfb * 100],
+//                                    ['其他',8.5]
+                                        ]
+                                    }];
+
+                                    var json = {};
+                                    json.chart = chart;
+                                    json.title = title;
+                                    json.tooltip = tooltip;
+                                    json.series = series;
+                                    json.plotOptions = plotOptions;
+                                    $('#container1').highcharts(json);
+
+                                    var chart = {
+                                        type: 'column'
+                                    };
+                                    var title = {
+                                        text: '今日交易金额量'
+                                    };
+                                    var subtitle = {
+//                                text: 'Source: runoob.com'
+                                    };
+                                    var xAxis = {
+                                        categories: ['1~10', '11~50', '51~100', '101~500', '500+'],
+                                        crosshair: true
+                                    };
+                                    var yAxis = {
+                                        min: 0,
+                                        title: {
+                                            text: '数量 '
+                                        }
+                                    };
+                                    var tooltip = {
+                                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                        '<td style="padding:0"><b>{point.y:.1f} 笔</b></td></tr>',
+                                        footerFormat: '</table>',
+                                        shared: true,
+                                        useHTML: true
+                                    };
+                                    var plotOptions = {
+                                        column: {
+                                            pointPadding: 0.2,
+                                            borderWidth: 0
+                                        }
+                                    };
+                                    var credits = {
+                                        enabled: false
+                                    };
+                                    var series = [{
+                                        name: '今天',
+                                        data: [_self.cm['0'], _self.cm['1'], _self.cm['2'], _self.cm['3'], _self.cm['4']],
+                                    }];
+
+                                    var json = {};
+                                    json.chart = chart;
+                                    json.title = title;
+                                    json.subtitle = subtitle;
+                                    json.tooltip = tooltip;
+                                    json.xAxis = xAxis;
+                                    json.yAxis = yAxis;
+                                    json.series = series;
+                                    json.plotOptions = plotOptions;
+                                    json.credits = credits;
+                                    $('#container').highcharts(json);
+
+
+                                }
+                            }
+                        }).catch(function (error) {
+
+
+                    })
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

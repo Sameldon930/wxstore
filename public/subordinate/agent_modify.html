@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="favicon.ico" title="Favicon">
+    <title>每人付</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <style>
+        .van-button--bottom-action {
+            background-color: #2F8CE5!important;
+        }
+        .van-nav-bar{
+            background-color: #fff !important;
+        }
+        .van-nav-bar__title{
+            color: #1a1a1a !important;
+        }
+        .van-icon-arrow::before {
+            color: #1a1a1a !important;
+        }
+        .van-button--primary {
+            color: #fff;
+            background-color: #2F8CE5!important;
+            border: 1px solid #2F8CE5!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar fixed
+                     title="重置密码"
+                     left-arrow
+                     @click-left="onClickLeft"/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="mobile"
+                    label="手机号"
+                    icon="clear"
+                    placeholder="请输入手机号"
+                    required
+                    @click-icon="mobile = ''"
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="password"
+                    type="password"
+                    label="新密码"
+                    placeholder="请输入新密码"
+                    required
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    v-model="password_confirm"
+                    type="password"
+                    label="确认密码"
+                    placeholder="请输入确认密码"
+                    required
+            />
+        </van-cell-group>
+    </div>
+    <div style="padding-top: 10px;">
+        <van-cell-group>
+            <van-field
+                    center
+                    v-model="mobile_code"
+                    label="短信验证码"
+                    placeholder="请输入短信验证码"
+            >
+                <van-button slot="button" size="small" type="primary" :disabled="smsButton" @click="getSms" v-show="!computedTime">获取验证码</van-button>
+                <van-button slot="button" size="small" type="primary" disabled @click="getSms" v-show="computedTime">已发送({{computedTime}}s)</van-button>
+            </van-field>
+        </van-cell-group>
+    </div>
+    <div style="width: 90vw;display: flex;justify-content: center;padding: 12px 5vw;">
+        <van-button type="primary" bottom-action @click="resetPassword">确认修改</van-button>
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script>
+//修改密码接口
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                mobile: '',
+                password: '',
+                mobile_code: '',
+                password_confirm: '',
+                computedTime: 0,
+            };
+        },
+        methods: {
+            onClickLeft() {
+                window.history.back();
+            },
+            resetPassword() {
+                let post_data = {
+                    method: 'reset.password',
+                    nonce: 'reset.password',
+                    mobile: this.mobile,
+                    password: this.password,
+                    mobile_code: this.mobile_code
+                };
+                if (this.password == this.password_confirm){
+                    axios.post('/api/v1',api_data_sign(post_data, 'mrf')).then(response => {
+                        if (response.data.code == 200) {
+                            this.$dialog.alert({
+                                title: '修改成功',
+                                message: '密码修改成功，是否前往登录？'
+                            }).then(() => {
+                                setTimeout(function () {
+                                    window.location.href = 'agent_login.html';
+                                }, 1000)
+
+                            });
+                        }else {
+                            this.$toast(response.data.msg);
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    });
+                } else {
+                    this.$toast("新密码和确认密码不一致");
+                }
+            },
+            getSms() {
+                let post_data = {
+                    method: 'mobile.msg.get',
+                    nonce: 'mobile.msg.get',
+                    mobile: this.mobile,
+                };
+                axios.post('/api/v1',api_data_sign(post_data, 'hc')).then(response => {
+                    this.$toast(response.data.msg);
+                    this.computedTime = 60;
+                    this.timer = setInterval(() => {
+                        this.computedTime--;
+                        if (this.computedTime == 0) {
+                            clearInterval(this.timer)
+                        }
+                    }, 1000);
+                }).catch(error => {
+                    this.$toast('获取短信失败');
+                    console.log(error);
+                });
+            }
+        },
+        computed: {
+            smsButton() {
+                if (this.mobile.length>10)
+                    return false;
+                return true;
+            }
+        },
+    });
+</script>
+
+</body>
+</html>
+

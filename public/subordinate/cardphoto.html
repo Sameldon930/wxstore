@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <title>证件信息</title>
+</head>
+<style>
+    .wis-img{
+        margin-top: 6px;
+    }
+    .wis-SFZ{
+        text-align: center;
+        margin-top: 50px;
+    }
+    h4{
+        margin-top: 20px;
+        font-size: 14px;
+        color: #101010;
+    }
+    .van-nav-bar > div > i {
+        color: #BBBBBB !important;
+    }
+    .van-nav-bar{
+        background-color: #fff !important;
+
+    }
+    .van-nav-bar__text,.van-nav-bar__title,.van-nav-bar__left span{
+        color: #1a1a1a !important;
+    }
+    .van-icon-arrow::before{
+        color:#1a1a1a!important;
+    }
+</style>
+<body>
+<div id="app" v-cloak>
+    <div class="container-fluid">
+        <div class="row" style="margin:10px 0 10px 0">
+            <div>
+                <van-nav-bar fixed title="证件信息" left-arrow  @click-left="onClickLeft"/>
+            </div>
+            <!--right-text="设置"-->
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 wis-SFZ">
+                <!--<img src="../img/img01.jpg" >-->
+                <img  :src="cleaner_idcard_front" height="150px" width="80%">
+                <h4>身份证正面照</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 wis-SFZ">
+                <img  :src="cleaner_idcard_back" height="150px" width="80%">
+                <h4>身份证反面照</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+
+</body>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+
+    }
+    var data_id = obj.id;
+    var post_data = {
+        method: 'id.card',
+        nonce:  'id.card',
+        id:data_id
+    };
+    var srcStorage = '/storage/'
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                cleaner_idcard_back:"",
+                cleaner_idcard_front:"",
+            };
+        },
+        created() {
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var datas = response.data;
+                    if (datas.code == 200) {
+                        _self.cleaner_idcard_front = srcStorage + datas.data.cleaner_idcard_front;
+                        _self.cleaner_idcard_back = srcStorage + datas.data.cleaner_idcard_back;
+                    }else {
+                        if (response.data.code == '2001') {
+                            _self.login_check = false;
+                            window.localStorage.removeItem('WIS_MRFAgent.user');
+                            _self.$dialog.confirm({
+                                title: '请重新登录',
+                                message: response.data.msg[0]
+                            }).then(() => {
+                                window.location.href = '../subordinate/agent_login.html';
+                            }).catch(() => {
+                                window.location.href = '../agent_index.html';
+                            });
+                        }
+                    }
+
+                }).catch(function (error) {
+                 console.log(error);
+            });
+        },
+        methods: {
+            onClickLeft(){
+                window.history.go(-1)
+            },
+        }
+
+    });
+
+
+</script>
+</html>

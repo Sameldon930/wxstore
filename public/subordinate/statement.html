@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <title>每人付</title>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/chart.css" rel="stylesheet" />
+    <link href="../css/swiper-4.3.5.min.css" rel="stylesheet" />
+    <style>
+
+        *{ padding: 0;margin: 0; }
+        a {text-decoration: none;}
+        ul,ol {list-style:none;}
+        .wrap{min-width: 320px;max-width:768px;margin:0 auto;overflow:hidden;position:relative;}
+        .wrapper {position:relative;height: 120px;width: 100%;overflow: hidden;margin:0 auto;border-bottom:1px solid #ccc;padding: 10px}
+        .wrapper .scroller {position:absolute;}
+        .wrapper .scroller li {float: left;width: 200px;height: 80px;text-align: center;font-style: none;margin: 0 20px; padding: 20px 20px 20px 0;}
+        .wrapper .scroller li:nth-child(1) { padding-left: 20px; }
+        .wrapper .scroller li {}
+        .wrapper .scroller li span{display:block;border: 1px solid #3992e7;box-shadow: #666 0px 0px 10px;background:white;}
+        .van{
+            height: 34vh;
+            width: 100vw;
+            background:#181f23;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url("../img/config/merchant_bgi.jpg") no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+        .card-container {
+            width: 80vw;
+            height: auto;
+            background:rgba(255,255,255,0.48);
+            min-height: 28vw;
+            border-radius: 2vh;
+            display: flex;
+            align-items: center;
+            justify-content:center;
+        }
+        .card-header {
+            padding:10px auto;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 60vw;
+        }
+        .card-header>div{
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+        .cell-icon-title {
+            line-height: 2em;
+        }
+        .merchant-title {
+            color: #101010;
+            overflow: hidden;
+            white-space:nowrap;
+            text-overflow: ellipsis;
+        }
+        .font-fixed{
+            margin: auto 0.5em;
+        }
+        .avatar-item{
+            height: 18vw;
+            width: 18vw;
+            border-radius: 50%;
+            border: 1vw solid #fff
+        }
+        .fix_merchant_bar{
+            padding-top: 105px;
+        }
+        .mrf-hide{
+            display: none;
+            text-align: center;
+        }
+        .highcharts-credits{
+            display: none!important;
+        }
+        .fixed_nav_bar{
+            padding-top: 24px;
+            background-color: #f9f9f9;
+        }
+        .bottom-box{
+            padding: 50px;
+
+        }
+        .van-tab--active {
+            color: #2F8CE5!important;
+        }
+        .van-tabs__line{
+            background-color: #2F8CE5!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+
+
+    <van-tabs  @click="onClick" v-model="dateselect"  style="margin-top: 55px">
+        <van-tab  v-for="index in item" :title="index.text">
+            <div>
+                <van-nav-bar title="报表" fixed/>
+            </div>
+            <div class="fixed_nav_bar"></div>
+            <van-row>
+                <van-col span="12" style="margin-left: 10px" >
+                    收益金额
+                </van-col>
+                <van-col span="11" style="text-align: right"><a href="trendchart.html">趋势</a><van-icon name="arrow"/></van-col>
+            </van-row>
+
+
+
+                <div class="wrapper" :id='"wrapper"+index.text'>
+                    <div class="scroller">
+                        <ul class="clearfix">
+                            <li>
+                                <span>
+                                <div>合计</div>
+                                <div>{{sum/100}}元</div>
+                                <div>笔数 {{ count == 0 ? "0":count}}</div>
+                                </span>
+                            </li>
+                            <li>
+                                <span>
+                                <div>微信</div>
+                                <div>{{wxsum/100}}元</div>
+                                <div>笔数 {{ wxcount == 0 ? "0":wxcount}}</div>
+                                </span>
+                            </li>
+                            <li>
+                                <span>
+                                <div>支付宝</div>
+                                <div>{{zfbsum/100}}元</div>
+                                <div>笔数 {{ zfbcount == 0 ? "0":zfbcount}}</div>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            <!--通道占比  开始-->
+            <div class="passageway pic-title">
+                <img src="../img/i/channel.png" height="18" width="18">
+                <span class="pic-title-word">通道占比</span>
+            </div>
+            <div class="row mrf-hide">暂无数据</div>
+            <div data-tab-panel-0 id="container1" class="contain"></div>
+            <!--通道占比  结束-->
+            <!--交易金额分布   开始-->
+            <div  class="passageway pic-title">
+                <img src="../img/i/tree.png" height="18" width="18">
+                <span class="pic-title-word">收益金额分布</span>
+            </div>
+            <div class="row mrf-hide">暂无数据</div>
+            <div data-tab-panel-0 id="container" class="contain-1"></div>
+            <!--交易金额分布   结束-->
+        </van-tab>
+    </van-tabs>
+ <div class="bottom-box"></div>
+    <div>
+        <van-tabbar v-model="active">
+            <van-tabbar-item icon="wap-nav" @click="homePage">首页</van-tabbar-item>
+            <van-tabbar-item icon="pending-orders" >报表</van-tabbar-item>
+            <van-tabbar-item icon="contact" @click="myMerchant">我的</van-tabbar-item>
+        </van-tabbar>
+    </div>
+
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/swiper-4.3.5.min.js"></script>
+<script src="../js/iscroll.js"></script>
+<script src="../js/navbarscroll.js"></script>
+<!--<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>-->
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
+<script>
+    $(function(){
+        //直接调用这行代码
+        $('.wrapper').navbarscroll();
+    });
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+            function getBeforeDate(n){
+                var n = n;
+                var d = new Date();
+                var year = d.getFullYear();
+                var mon=d.getMonth()+1;
+                var day=d.getDate();
+                if(day <= n){
+                    if(mon>1) {
+                        mon=mon-1;
+                    }
+                    else {
+                        year = year-1;
+                        mon = 12;
+                    }
+                }
+                d.setDate(d.getDate()-n);
+                year = d.getFullYear();
+                mon=d.getMonth()+1;
+                day=d.getDate();
+                s =(mon<10?('0'+mon):mon)+"-"+(day<10?('0'+day):day);
+                return s;
+            }
+
+        var data_id  = obj.id;
+            var d = new Date();//当天
+            var one_days_ago = getBeforeDate(1) //前一天
+            var two_days_ago = getBeforeDate(2) //前二天
+            var there_days_ago = getBeforeDate(3) //前三天
+            var four_days_ago = getBeforeDate(4) //前四天
+            var five_days_ago = getBeforeDate(5) //前五天
+            var six_days_ago = getBeforeDate(6) //前六天
+            var seven_days_ago = getBeforeDate(7) //前六天
+           //当天
+            var str = "0"+(d.getMonth()+1)+"-0"+d.getDate();
+            var app = new Vue({
+                el: "#app",
+                data() {
+                    return {
+                    active:1,
+                    count: "",
+                    sum: '',
+                    login_check: false,
+                    computedTime: 0,
+                    wxsum: "",
+                    wxcount: '',
+                    zfbcount: "",
+                    zfbsum:"",
+                    a:"",
+                    b:"",
+                    c:"",
+                    item:[
+                    {text:seven_days_ago},
+                    {text:six_days_ago},
+                    {text:five_days_ago},
+                    {text:four_days_ago},
+                    {text:there_days_ago},
+                    {text:two_days_ago},
+                    {text:one_days_ago},
+                    ],
+                    dateselect:6
+            }
+        },
+        methods: {
+            homePage(){
+                location.href = "../agent_index.html"
+            },
+            myMerchant(){
+                location.href = "agent_my.html"
+            },
+            onClick(index, title) {
+                var post_data = {
+                    method: 'report.form',
+                    nonce: 'report.form',
+                    title:title,
+                    id: data_id,
+                }
+
+
+                var _self = this;
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var datas = response.data.data;
+//                        console.log(datas)
+                        if (response.data.code == 200) {
+                            if (datas.sum == 0) {
+                                $('#container1').hide()
+                                $('.mrf-hide').show()
+                                $('#container').hide()
+                                $('.bottom-box').hide()
+                                _self.count = datas.count
+                                _self.sum = datas.sum
+                                _self.wxcount = datas.wxcount
+                                _self.wxsum = datas.wxsum
+                                _self.zfbcount = datas.zfbcount
+                                _self.zfbsum = datas.zfbsum
+                            } else {
+                                $('.bottom-box').show()
+                                $('#container1').show()
+                                $('.mrf-hide').hide()
+                                $('#container').show()
+                                _self.count = datas.count
+                                _self.sum = datas.sum
+                                _self.wxcount = datas.wxcount
+                                _self.wxsum = datas.wxsum
+                                _self.zfbcount = datas.zfbcount
+                                _self.zfbsum = datas.zfbsum
+                                _self.a = datas.a
+                                _self.b = datas.b
+                                _self.c = datas.c
+                                var chart = {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false
+                                };
+                                var title = {
+                                    text: '通道交易占比'
+                                };
+                                var tooltip = {
+                                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                                };
+                                var plotOptions = {
+                                    pie: {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                                            style: {
+                                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                            }
+                                        }
+                                    }
+                                };
+
+
+                                var series = [{
+                                    type: 'pie',
+                                    name: '占比',
+
+                                    data: [
+                                        ['微信', _self.wxcount / _self.count],
+                                        ['支付宝', _self.zfbcount / _self.count],
+                                    ]
+                                }];
+
+                                var json = {};
+                                json.chart = chart;
+                                json.title = title;
+                                json.tooltip = tooltip;
+                                json.series = series;
+                                json.plotOptions = plotOptions;
+                                $('#container1').highcharts(json);
+
+                                var chart = {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false
+                                };
+                                var chart = Highcharts.chart('container', {
+                                    title: {
+                                        text: '交易金额占比'
+                                    },
+                                    tooltip: {
+                                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                                    },
+                                    plotOptions: {
+                                        pie: {
+                                            allowPointSelect: true,
+                                            cursor: 'pointer',
+                                            dataLabels: {
+                                                enabled: true,
+                                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                                style: {
+                                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                                },
+                                                connectorColor: 'silver'
+                                            }
+                                        }
+                                    },
+                                    series: [{
+                                        type: 'pie',
+                                        name: '金额占比',
+                                        data: [
+                                            ['0-1', _self.a],
+                                            ['1-10',_self.b],
+                                            ['10+', _self.c]
+                                        ]
+                                    }]
+                                });
+                            }
+
+                        }
+
+                        setTimeout(function(){
+                            var wrapper_id='#wrapper'+_self.item[index].text;
+                            $(wrapper_id).navbarscroll();
+                        },0);
+                    }).catch(function (error) {
+                });
+
+
+
+            },
+
+        },
+        mounted () {
+            var post_data = {
+                method: 'report.form',
+                nonce: 'report.form',
+                id: data_id,
+                title:""
+            }
+            var _self = this;
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var datas = response.data.data;
+//                    console.log(datas);
+                    if (response.data.code == 200) {
+                        if (datas.sum == 0) {
+                            $('#container1').hide()
+                            $('.mrf-hide').show()
+                            $('#container').hide()
+                            $('.bottom-box').hide()
+                        } else {
+                            $('.bottom-box').show()
+                            $('#container1').show()
+                            $('.mrf-hide').hide()
+                            $('#container').show()
+                            _self.count = datas.count
+                            _self.sum = datas.sum
+                            _self.wxcount = datas.wxcount
+                            _self.wxsum = datas.wxsum
+                            _self.zfbcount = datas.zfbcount
+                            _self.zfbsum = datas.zfbsum
+                            _self.a = datas.a
+                            _self.b = datas.b
+                            _self.c = datas.c
+                            var chart = {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false
+                            };
+                            var title = {
+                                text: '通道交易占比'
+                            };
+                            var tooltip = {
+                                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                            };
+                            var plotOptions = {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '<b>{point.name}</b>: {point.percentage:.1f}% ',
+                                        style: {
+                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                        }
+                                    }
+                                }
+                            };
+
+
+                            var series = [{
+                                type: 'pie',
+                                name: '占比',
+
+                                data: [
+                                    ['微信', _self.wxcount/_self.count],
+                                    ['支付宝', _self.zfbcount/_self.count],
+//                                    ['其他',8.5]
+                                ]
+                            }];
+
+                            var json = {};
+                            json.chart = chart;
+                            json.title = title;
+                            json.tooltip = tooltip;
+                            json.series = series;
+                            json.plotOptions = plotOptions;
+                            $('#container1').highcharts(json);
+
+                            var chart = {
+                                plotBackgroundColor: null,
+                                plotBorderWidth: null,
+                                plotShadow: false
+                            };
+                            var chart = Highcharts.chart('container',{
+                                title: {
+                                    text: '交易金额占比'
+                                },
+                                tooltip: {
+                                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                            style: {
+                                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                            },
+                                            connectorColor: 'silver'
+                                        }
+                                    }
+                                },
+                                series: [{
+                                    type: 'pie',
+                                    name: '金额占比',
+                                    data: [
+//                                        {
+//                                            name: 'Chrome',
+//                                            y: 12.8,
+//                                            sliced: true,
+//                                            selected: true
+//                                        },
+                                        ['0-1', _self.a],
+                                        ['1-10',_self.b],
+                                        ['10+', _self.c]
+                                    ]
+                                }]
+                            });
+
+
+                        }
+                    }
+                }).catch(function (error) {
+            });
+        },
+    });
+</script>
+
+</body>
+</html>

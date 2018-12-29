@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png"/>
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略"/>
+    <title>每人付</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        .card-header > div {
+            line-height: 1.6em;
+            max-width: 60vw;
+        }
+
+        .mrf-but {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .avatar-item img {
+            width: 70px;
+            height: 70px;
+            border: 1vw solid #ffffff;
+            border-radius: 50%;
+        }
+        .van-uploader{
+            width: 71%!important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar title="我的" fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+
+    <div class="my-header am-g wis-background-primary  am-padding-sm">
+
+        <van-uploader :before-read="compress">
+            <div class="am-u-sm-3" v-if="avatar == null || avatar == ''">
+                <img
+                        src='../img/i/touxiang@2x.png' height="70" width="70">
+
+            </div>
+            <div class="am-u-sm-3 avatar-item" v-else>
+                <img :src="avatar">
+            </div>
+            <div class="am-u-sm-9 wis-text-white am-text-left am-text-sm" style="margin-top: 3%;padding-left: 17%;">
+                <div>代理名称:{{ name }}</div>
+                <div>手机号:{{real_mobile}}</div>
+                <div>ID:{{mobile}}</div>
+            </div>
+        </van-uploader>
+
+    </div>
+
+    <a href="agentinfo.html" id="iden">
+        <div class="am-g wis-background-white am-padding-sm ">
+            <div class="am-u-sm-7">
+                <img src="../img/user.png" height="25" width="25" class="am-margin-right">
+                <span class="font-height ">我的信息</span>
+            </div>
+            <div class="am-u-sm-5 am-text-right">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+    <a href="cardphoto.html" id="saving_iden">
+
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0">
+            <div class="am-u-sm-12 wis-border-top am-padding-top-sm"></div>
+            <div class="am-u-sm-6  ">
+                <img src="../img/card_people.png" width="25" height="25" class="am-margin-right">
+                <span class="font-height ">证件照片</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+
+    <a href="my_card.html">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0">
+            <div class="am-u-sm-12 wis-border-top am-padding-top-sm"></div>
+            <div class="am-u-sm-6  ">
+                <img src="../img/card.png" width="25" height="25" class="am-margin-right">
+                <span class="font-height ">银行卡</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+
+    </a>
+    <a href="agent_modify.html">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0">
+            <div class="am-u-sm-12 wis-border-top am-padding-top-sm"></div>
+                <div class="am-u-sm-6  ">
+                    <img src="../img/modify.png" width="25" height="25" class="am-margin-right">
+                    <span class="font-height ">修改密码</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+    <a href="tel:400-8855-676">
+        <div class="am-g wis-background-white  am-padding-sm am-padding-top-0">
+            <div class="am-u-sm-12 wis-border-top am-padding-top-sm"></div>
+            <div class="am-u-sm-6  ">
+                <img src="../img/contact.png" width="25" height="25" class="am-margin-right">
+                <span class="font-height ">联系我们</span>
+            </div>
+            <div class="am-u-sm-2 am-u-sm-offset-4 am-text-right ">
+                <img src="../img/i/bf@2x.png " height="18">
+            </div>
+        </div>
+    </a>
+
+
+    <div class="fix_merchant_bar"></div>
+    <div class="row">
+        <div class="col-xs-12 mrf-but">
+            <input class="btn btn-primary" type="button" @click="logout" value="安全退出" style="width: 70%">
+        </div>
+    </div>
+    <div>
+        <van-tabbar v-model="active">
+            <van-tabbar-item icon="wap-nav" @click="homePage">首页</van-tabbar-item>
+            <van-tabbar-item icon="pending-orders" @click="myBusiness">报表</van-tabbar-item>
+            <van-tabbar-item icon="contact">我的</van-tabbar-item>
+        </van-tabbar>
+    </div>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/dist/lrz.bundle.js"></script>
+<script>
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if (obj == null) {
+        window.location.href = '../subordinate/agent_login.html';
+
+    }
+    var base_url = '../storage';
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                active: 2,
+                token: '',
+                avatar: '',
+                id: '',
+                temp_avatar: '',
+                name: '',
+                mobile: '',
+                real_mobile: '',
+                login_check: false,
+                computedTime: 0
+            }
+        },
+        methods: {
+            homePage() {
+                location.href = '../agent_index.html';
+            },
+            myBusiness(){
+                location.href = "./statement.html";
+            },
+            compress(file){
+                var _self = this
+                lrz(file, {width: 1024}).then(function (rst) {
+                    _self.avatar = rst.base64
+                })
+                this.$dialog.confirm({
+                    title: '更换头像',
+                    message: '确定修改为当前头像？'
+                }).then(()=>
+                {
+                    this.saveAvatar();
+                }
+            ).
+                catch(()=>
+                {
+                    this.avatar = this.temp_avatar;
+            }
+            )
+                ;
+
+            },
+            saveAvatar() {
+            var user_id = obj.id;
+            var token = obj.remember_token;
+            var post_data = {
+            method: 'agent.save.avatar',
+            nonce: 'agent.save.avatar',
+            id: user_id,
+            remember_token: token,
+            avatar: this.avatar
+                };
+                var _self = this
+                axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+//                        console.log(data)
+                        if (data.code == 200) {
+                            pop_error_msg(data.msg, _self)
+                        } else {
+                            if (response.data.code == '0005') {
+                                this.login_check = false;
+                                window.localStorage.removeItem('WIS_MRFAgent.user');
+                                this.$dialog.confirm({
+                                    title: '请重新登录',
+                                    message: response.data.msg[0]
+                                }).then(()=>
+                                {
+                                    window.location.href = 'agent_login.html';
+                                }
+                            ).catch(()=>
+                                {
+                                    window.location.href = '../agent_index.html';
+                                }
+                            );
+                            } else {
+                                pop_error_msg(data.msg, _self)
+                            }
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            },
+            logout(){
+                this.$dialog.confirm({
+                    title: '安全退出',
+                    message: '确定安全退出登录？'
+                }).then(()=> {
+                window.localStorage.removeItem('WIS_MRFAgent.user');
+                this.login_check = false;
+                this.$toast('退出登录成功！');
+
+                this.computedTime = 2;
+                this.timer = setInterval(() => {
+                    this.computedTime--;
+                    if (this.computedTime == 0) {
+                        clearInterval(this.timer);
+                        window.location.href = '../subordinate/agent_login.html';
+                    }
+                }, 1000);
+            }).catch(() => {
+                    window.location.href = 'agent_my.html';
+                });
+            }
+        },
+        mounted () {
+            var post_data = {
+                method: 'agent.info',
+                nonce: 'agent.info',
+                id: obj.id,
+                remember_token: obj.remember_token,
+            }
+            var _self = this
+            axios.post('/api/v1', api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    {
+                        if (response.data.code == '200') {
+                            var merchantInfo = response.data.data.merchant_info;
+                            var user = response.data.data;
+                            _self.id = user.id;
+                            _self.name = user.name == '' ? '未设置' : user.name;
+                            _self.real_mobile = user.real_mobile == null ? '未设置' : user.real_mobile;
+                            _self.mobile = user.mobile == '' ? '未设置' : user.mobile;
+                            _self.avatar = user.avatar == null ? '' : base_url + user.avatar;
+                            _self.temp_avatar = user.avatar == null ? '' : base_url + user.avatar;
+                        }
+                        if (response.data.code == '0005') {
+                            _self.login_check = false;
+                            window.localStorage.removeItem('WIS_MRFAgent.user');
+                            _self.$dialog.alert({
+                                title: '请重新登录',
+                                message: response.data.msg
+                            }).then(() => {
+                                window.location.href = 'agent_login.html';
+                            })
+                        }
+                        if (response.data.code == '2001') {
+                            _self.login_check = false;
+                            window.localStorage.removeItem('WIS_MRFAgent.user');
+                            _self.$dialog.alert({
+                                title: '请重新登录',
+                                message: response.data.msg
+                            }).then(() => {
+                                window.location.href = 'agent_login.html';
+                            })
+                        }
+                    }
+                    }).catch(() => {
+                    window.location.href = '../index.html';
+                });
+            ;
+
+        }
+    });
+</script>
+
+</body>
+</html>

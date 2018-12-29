@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <title>每人付</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/deal-detail.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<div id="app" v-cloak>
+    <div>
+        <van-nav-bar title="旗下代理"
+                     left-arrow
+                     @click-left="onClickLeft"
+                     @click-right="onClickRight"
+                     right-text="时间筛选" fixed/>
+    </div>
+    <div class="fixed_nav_bar"></div>
+    <div>
+        <div class="van">
+            <div class="card-container">
+
+                <div v-if="avatar == null || avatar == ''" >
+                    <img src='../img/i/touxiang@1x.png'  height="70" width="70">
+                </div>
+                <div v-else class="avatar-item">
+                    <img :src="'/storage/'+avatar"  >
+                </div>
+                <div style="text-align: center;margin-top: 1em;">
+                    <div style="font-size: 16px;color: #1a1a1a;">{{name}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="border-gray"></div>
+    <div class="account-box" >
+        <div class="account-left">
+            <div class="account-title">贡献利润:</div>
+            <div class="account-money">{{benefit == ''?0:benefit}}</div>
+        </div>
+    </div>
+    <van-popup v-model="show">
+        <van-picker
+                show-toolbar
+                :columns="columns"
+                @cancel="onCancel"
+                @confirm="onConfirm"
+        />
+    </van-popup>
+
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/wis.common.js"></script>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFAgent.user'));
+    if(obj == null){
+        window.location.href = '../subordinate/agent_login.html';
+    }
+    var data_aid  = obj.id;
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+    var page_num = 1;
+    var data_id = GetQueryString("id");
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                name:'',
+                account:'',
+                avatar:'',
+                benefit:'',
+                show:false,
+                columns: ['交易时间', '今日', '近七日', '本周', '本月','近三月'],
+                zone:"",
+                items:[],
+                loading: false,
+                finished: false,
+                post_data: {},
+                total:"",
+            };
+        },
+        mounted () {
+            var _self =this ;
+            var post_data = {
+                id: data_id,
+                method: 'subordinate.account.detail',
+                nonce: 'subordinate.account.detail',
+                aid:data_aid,
+                type: '',
+                zone:'',
+                token:obj.remember_token
+            };
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                .then(function (response) {
+                    var data = response.data;
+                    if(data.code == 200){
+                        //拿值
+                        _self.name = data.data.name;
+                        _self.account = data.account;
+                        _self.benefit = data.benefit;
+                    };
+                    if(response.data.code == '0005') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+                    if(response.data.code == '2001') {
+                        _self.login_check = false;
+                        window.localStorage.removeItem('WIS_MRFAgent.user');
+                        _self.$dialog.alert({
+                            title: '请重新登录',
+                            message: response.data.msg
+                        }).then(() => {
+                            window.location.href = 'agent_login.html';
+                        })
+                    }
+
+                }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        methods: {
+
+            onClickLeft(){
+                window.history.go(-1);
+            },
+            onClickRight(){
+                this.show = true;
+            },
+            onCancel(){
+                this.show = false;
+            },
+            onConfirm(a){
+                this.show = false;
+                var columns = a;
+
+                var post_data = {
+                    id:data_id,
+                    method: 'subordinate.account.detail',
+                    nonce: 'subordinate.account.detail',
+                    columns:columns,
+                    zone:3,
+                    aid:data_aid,
+                    type: '',
+                    token:obj.remember_token
+
+                };
+                var _self =this ;
+                console.log(_self)
+
+                axios.post('/api/v1',api_data_sign(post_data, 'mrf'))
+                    .then(function (response) {
+                        var data = response.data;
+                        var benefit = response.benefit
+                        if(data.code == 200){
+                            //拿值
+
+                            _self.benefit = response.data.benefit;
+                        }
+                    }).catch(function (error) {
+                    console.log(error);
+                });
+            },
+
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>语音播报</title>
+    <link rel="stylesheet" href="css/amazeui.css"/>
+    <link rel="stylesheet" href="css/wis.css"/>
+    <link rel="stylesheet" href="css/fn.css"/>
+</head>
+<style>
+    .voice{
+        font-size: 3em;
+    }
+</style>
+<body>
+
+
+<audio id="snd" style="display:none;" src="\storage\voice\201809250953075ba995036acb8.mp3" controls="controls"></audio>
+<div id="app">
+    <div v-cloak class="voice"> {{status}}</div>
+    </br>
+    <!--<div>
+        <ul>
+            <li v-for="item in items">
+                {{item.money}}{{item.type}}
+            </li>
+        </ul>
+    </div>-->
+</div>
+<div id="aa"></div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/wis.common.js"></script> <!-- common 中有封装好的弹窗提示方法 -->
+<script type="text/javascript">
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id = obj.id;
+
+    var voice = document.getElementById('snd');
+
+    //判断是否是电脑pc端
+
+    if(/(iPhone|iPad|iOS|Android)/i.test(navigator.userAgent)){
+        //判断为手机端
+    }else{
+        //判断为PC端
+        voice.play();
+    }
+
+    if (typeof WeixinJSBridge == "object" && typeof WeixinJSBridge.invoke == "function") {
+        voice.play();
+    } else {
+        //监听客户端抛出事件"WeixinJSBridgeReady"
+        if (document.addEventListener) {
+            document.addEventListener("WeixinJSBridgeReady", function(){
+                voice.play();
+            }, false);
+        } else if (document.attachEvent) {
+            document.attachEvent("WeixinJSBridgeReady", function(){
+                voice.play();
+            });
+            document.attachEvent("onWeixinJSBridgeReady", function(){
+                voice.play();
+            });
+        }
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            status: '服务器链接中...',
+            //items:[]
+        },
+        created: function () {
+            var _self=this;
+            var name='name'+data_id;
+            var token=obj.remember_token;
+            console.log(name);
+            if ("WebSocket" in window) {
+                ws = new WebSocket("ws://111.230.183.134:9501?name="+name+'&token='+token);
+                ws.onopen = function () {
+                    // Web Socket 已连接上，使用 send() 方法发送数据
+                    //ws.send("尝试发送数据");
+                    console.log('链接成功');
+                    _self.status='正在链接中！';
+                    //alert("数据发送中...");
+                };
+                ws.onmessage = function (evt) {
+                    var received_msg = evt.data;
+                    //console.log(received_msg);
+                    received_msg = JSON.parse(received_msg);
+                    if(received_msg.code==400){
+                        _self.status='链接失败，验证失败，链接关闭！';
+                        console.log(received_msg.msg);
+                    }else if(received_msg.code==300){
+                        _self.status='链接成功，正在接收语言信息！';
+                        console.log(received_msg.msg);
+                    }else {
+                        _self.doVoice(received_msg);
+                    }
+                };
+                ws.onclose = function () {
+                    // 关闭 websocket
+                    //_self.status='链接关闭！';
+                    console.log("连接已关闭...");
+                    _self.status='链接已关闭';
+                };
+            }
+
+            else {
+                // 浏览器不支持 WebSocket
+                alert('浏览器不支持webSocket，建议更换其他浏览器');
+            }
+
+        },
+        methods: {
+            doVoice:function(msg){
+                var post_data = {
+                    method: 'get.voice',
+                    nonce: 'get.voice',
+                    money:msg.money,
+                    type:msg.type,
+                    action:'get'
+                };
+                var _self=this;
+                //得到支付申请结果，并跳转到对应页面进行支付
+                axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                        .then(function (response) {
+                            var src=response.data.data.url;
+                            _self.playVoice('\\storage\\voice\\' +src);
+                            setTimeout(function(){
+                                _self.deleteVoice(src);
+                            },5000);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+            },
+            playVoice:function(src){
+                var voice = document.getElementById('snd');
+                voice.src = src;
+                voice.play();
+            },
+            deleteVoice:function(src){
+                var post_data = {
+                    method: 'get.voice',
+                    nonce: 'get.voice',
+                    money:'1',
+                    type:'1',
+                    action:'delete',
+                    src:src
+
+                };
+                //得到支付申请结果，并跳转到对应页面进行支付
+                axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                        .then(function (response) {
+
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+            }
+
+        }
+    });
+
+</script>
+
+</html>

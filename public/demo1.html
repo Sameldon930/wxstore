@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <link rel="stylesheet" href="css/amazeui.css"/>
+    <link rel="stylesheet" href="css/wis.css"/>
+    <link rel="stylesheet" href="css/fn.css"/>
+</head>
+<body>
+
+<audio id="snd" src="\storage\voice\201809211430165ba48ff8ce62d.mp3" controls="controls"></audio>
+
+<a href="javascript:aa()">
+<div id="aa">1231231dadasd</div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/wis.common.js"></script> <!-- common 中有封装好的弹窗提示方法 -->
+<script type="text/javascript">
+    function aa() {
+        var _s = document.getElementById('snd');
+
+        var src='/storage/voice/201809211626175ba4ab29499a0.mp3';
+
+        if (src != '' && typeof src != undefined) {
+            _s.src = src;
+            _s.play()
+        }
+    }
+
+    $(document).ready(function() {
+        var voice = document.getElementById('snd');
+        var src='/storage/voice/201809211626175ba4ab29499a0.mp3';
+        voice.src = src;
+        //voice.play();
+        //调用 <audio> 元素提供的方法 play()
+        //voice.play();
+        //判斷 WeixinJSBridge 是否存在
+        if (typeof WeixinJSBridge == "object" && typeof WeixinJSBridge.invoke == "function") {
+            //voice.play();
+        } else {
+            //監聽客户端抛出事件"WeixinJSBridgeReady"
+            if (document.addEventListener) {
+                document.addEventListener("WeixinJSBridgeReady", function(){
+                    voice.play();
+                }, false);
+            } else if (document.attachEvent) {
+                document.attachEvent("WeixinJSBridgeReady", function(){
+                    voice.play();
+                });
+                document.attachEvent("onWeixinJSBridgeReady", function(){
+                    voice.play();
+                });
+            }
+        }
+        setTimeout(function(){
+            var voice = document.getElementById('snd');
+            var src='/storage/voice/201809211430165ba48ff8ce62d.mp3';
+            voice.src = src;
+            voice.play();
+        },3000);
+        /*$('.musicPlay').click(function() {
+            // 依據 audio 的 paused 属性返回音频是否已暂停來判斷播放還是暫停音频。
+            if (voice.paused) {
+                voice.play();
+                $('.musicPlay>p>img').attr('src', 'http://upload-images.jianshu.io/upload_images/6171922-4d23a92a9c256d0d.gif?imageMogr2/auto-orient/strip');
+            } else {
+                voice.pause();
+                $('.musicPlay>p>img').attr('src', 'http://upload-images.jianshu.io/upload_images/6171922-e5206046b43e1efe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240');
+            }
+        });*/
+    });
+
+
+</script>
+
+</html>

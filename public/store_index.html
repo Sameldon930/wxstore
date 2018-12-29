@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="favicon.ico" title="Favicon">
+    <title>每人付-门店端</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="为商家解决收款问题、提供专业化营销策略" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link href="./css/app1.css" rel="stylesheet">
+    <link href="./css/mrf.common.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .hc-swipe {
+            height: 30vh;
+        }
+        .icon-container {
+            display:flex;
+            justify-content:space-around;
+            width: 100%;
+            align-items:center;
+            background-color: #fff;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .icon-title {
+            line-height: 7vh;margin: 6px
+        }
+        .index-content {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        .good-message > div{
+            padding: 4vw 6vw;
+            background: #ffffff;
+        }
+        .list-name{
+            width: 60%;
+            float: left;
+        }
+        .more{
+            width: 30%;
+            float: right;
+            text-align: right;
+        }
+        .day-trading{
+            padding-top:5px;
+            width: 330px;
+            height: 58px;
+            background: url("./img/today.jpg");
+            background-size: cover;
+            margin: 1em auto 1em;
+            display: flex;
+            flex-direction:column;
+            justify-content: space-around;
+        }
+        .day-trading-1{
+            padding-top:5px;
+            width: 330px;
+            height: 58px;
+            background: url("./img/afterday.png");
+            background-size: cover;
+            margin: 1em auto 5em;
+            display: flex;
+            flex-direction:column;
+            justify-content: space-around;
+        }
+        .day-count{
+            color:#FFFFFF;
+            font-size: 10px;
+            margin-left: 2em;
+        }
+        .day-money{
+            color: #FDDF11;
+            font-size: 28px;
+            margin-left: 21px;
+        }
+        .boder-bod{
+            height: 10px;
+            background-color: #F0F0F0;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="init-app" v-cloak>
+    <div>
+        <van-nav-bar title="首页" fixed />
+    </div>
+    <div class="fixed_nav_bar"></div>
+    <div>
+        <van-swipe :autoplay="3000" class="hc-swipe">
+            <van-swipe-item v-for="(image,index) in images" :key="index">
+                <a :href="url[index]">
+                    <img :src="image" style="width: 100%;height: 100%;"/>
+                </a>
+            </van-swipe-item>
+        </van-swipe>
+    </div>
+    <div style="padding:10px 3px;background-color: #fff;margin: 0px 0;margin-bottom: 5px">
+        <van-row >
+            <!--交易查询 结束-->
+            <a href="store/store_query.html">
+                <van-col span="12">
+                    <div class="index-content">
+                        <img src="./img/transaction.png" width="40px"  height="40px">
+                        <div style="padding-top: 4px;">交易查询</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--交易查询 结束-->
+            <!-- 开始-->
+            <a href="./store/system_message.html">
+                <van-col span="12">
+                    <div class="index-content">
+                        <img src="./img/system_msg.png" width="40px"  height="40px">
+                        <div style="padding-top: 4px;">系统消息</div>
+                    </div>
+                </van-col>
+            </a>
+            <!--退款查询 结束-->
+        </van-row>
+    </div>
+    <div class="boder-bod"></div>
+    <div style="width: 100%;background: rgba(240, 240, 240, 1);"></div>
+    <!--账单 开始-->
+    <div class="good-message">
+        <div>
+            <div class="list-name" style="border-left: 3px solid rgba(47, 140, 229, 1); color: #101010">&nbsp;账单</div>
+            <div class="more">
+                <a href="./store/monthly.html" style="color: #2F8CE5;font-size: 12px">
+                    查看月账 <i class="fa fa-angle-right" style="font-size: 14px"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--账单 结束-->
+    <!--今日交易 开始-->
+    <div  class="day-trading">
+        <div  class="day-count" v-cloak>今日交易({{today_number}}笔)</div>
+        <div class="day-money" v-cloak>{{today_money}}<span style="color: #FFFFFF;font-size: 10px;">元</span></div>
+    </div>
+    <!--今日交易 结束-->
+    <!--昨日交易 开始-->
+    <div class="day-trading-1">
+        <div class="day-count">昨日交易({{yesterday_number}}笔)</div>
+        <div class="day-money" >{{yesterday_money}}<span style="color: #FFFFFF;font-size: 10px;">元</span></div>
+    </div>
+    <!--昨日交易 结束-->
+
+
+
+
+    <div>
+        <van-tabbar v-model="active">
+            <van-tabbar-item icon="wap-nav" >首页</van-tabbar-item>
+            <van-tabbar-item icon="points-mall" @click="myBusiness" >经营中心</van-tabbar-item>
+            <van-tabbar-item icon="contact" @click="myMerchant">我的</van-tabbar-item>
+        </van-tabbar>
+    </div>
+
+</div>
+
+<script src="./js/app1.js"></script>
+<script src="./js/mrf.common.js"></script>
+<script>
+
+
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFStore.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+
+    }
+    var data_id = obj.id;
+    var app = new Vue({
+        el:"#app",
+        data() {
+            return {
+                active: 0,
+                avatar: '',
+                id: '',
+                login_check: false,
+                computedTime: 0,
+                token:'',
+                today_number:"",//今日交易笔数
+                today_money:"",//今日交易总和
+                yesterday_number:"",//昨日交易笔数
+                yesterday_money:"",//昨日交易总和
+                images:[],
+                url:[]
+
+            }
+        },
+        methods: {
+            myBusiness(){
+                location.href="./store/bussiness.html"
+            },
+            myMerchant(){
+                location.href="/store/store_my.html"
+            },
+        },
+        mounted () {
+            var post_data = {
+                method: 'store.wallet',
+                nonce: 'store.wallet',
+                id:data_id,
+                remember_token:obj.remember_token
+            }
+            var self = this;
+            axios.post('/api/v1',api_data_sign(post_data, 'mrf')).then(response => {
+                if (response.data.code == '200') {
+                    //后台接值传到前台
+                    var data =  response.data;
+                    //幻灯片地址
+                    var sides = response.data.side;
+                    self.id = data.id ;
+                    self.today_number = data.today_number == ''?0:data.today_number;
+                    self.today_money = data.today_money ==''?0:data.today_money;
+                    self.yesterday_number = data.yesterday_number ==''?0:data.yesterday_number;
+                    self.yesterday_money = data.yesterday_money == ''?0:data.yesterday_money;
+                    sides.forEach((item)=>{
+                        self.images.push(item.image);
+                        self.url.push(item.url)
+                    })
+
+                }
+                if(response.data.code == '0005') {
+                    self.login_check = false;
+                    window.localStorage.removeItem('WIS_MRFStore.user');
+                    self.$dialog.alert({
+                        title: '请重新登录',
+                        message: response.data.msg
+                    }).then(() => {
+                        window.location.href = './store/login.html';
+                    })
+                }
+                if(response.data.code == '2001') {
+                    self.login_check = false;
+                    window.localStorage.removeItem('WIS_MRFStore.user');
+                    self.$dialog.alert({
+                        title: '请重新登录',
+                        message: response.data.msg
+                    }).then(() => {
+                        window.location.href = './store/login.html';
+                    })
+                }
+            }).catch(error => {
+//                console.log(error);
+            });
+
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../favicon.ico" title="Favicon">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta itemprop="name" content="每人付"/>
+    <meta itemprop="image" content="../img/config/share.png" />
+    <meta name="description" itemprop="description" content="" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+    <!-- Styles -->
+    <link href="../css/app1.css" rel="stylesheet">
+    <link href="../css/mrf.common.css" rel="stylesheet">
+    <link href="../css/amazeui.css" rel="stylesheet" />
+    <link href="../css/wis.css" rel="stylesheet" />
+    <link href="../css/fn.css" rel="stylesheet" />
+    <link href="../css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <title>个人信息</title>
+</head>
+<style>
+    body{
+        background-color: #f5f5f5;
+    }
+    .wis-background-white{
+        background-color: white;
+        padding: 5px;
+    }
+    .boder-box{
+        height: 6px;
+    }
+    .wis-Middle{
+        text-align: center;
+        color: #BBBBBB;
+    }
+    .wis-img{
+        margin-top: 6px;
+    }
+    .van-nav-bar > div > i {
+        color: #BBBBBB !important;
+    }
+    .border-gray{
+        width:100%;
+        height: 1.5em;
+        background: #F0F0F0;
+    }
+    .van-popup--right{
+        width: 100%;
+        height: 100%;
+    }
+    .van-button{
+        width: 70%;
+        text-align: center;
+        margin-left: 15%;
+        margin-top: 4%;
+        background-color: #2F8CE5!important;
+    }
+    .van-button__text{
+        color: white;
+    }
+    .am-text-xs{
+        text-align: center;
+    }
+    /*.wis-background-white{*/
+        /*margin-left: 25%;*/
+    /*}*/
+    .am-g .am-g{
+        margin-right: 0;
+    }
+    .xin{
+        color: red;
+    }
+    .van-button--large {
+        height: 50px!important;
+        line-height: 48px!important;
+        width: 70%!important;
+    }
+</style>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <div class="row" style="margin:10px 0 10px 0">
+            <div>
+                <van-nav-bar fixed title="个人信息" left-arrow  @click-left="onClickLeft"/>
+            </div>
+        </div>
+    </div>
+    <div class="border-gray"></div>
+    <div style="padding-top: 10px;">
+                    <div class="am-text-xs am-margin-top-xs">
+                        <van-row>
+                            <div class="wis-background-white  am-u-sm-6">
+                                <div class=" wis-border-dashed am-margin am-margin-horizontal-0">
+                                    <label for="file2" style="display: none">经营许可证</label>
+                                    <div class="am-g am-text-center am-padding-sm" id="wrap_figure_box1">
+                                        <div id="for_figure_box1">
+                                            <van-uploader  :before-read="certificateimg" >
+                                                <div class="am-u-sm-6" v-if="certificate_img == null || certificate_img == ''">
+                                                    <img src='../img/i/ci.png'  height="70" width="70">
+                                                </div>
+                                                <div  class="am-u-sm-6 avatar-item" v-else>
+                                                    <img  :src="certificate_img" height="90" width="150">
+                                                </div>
+                                            </van-uploader>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="am-text-xs am-margin-top-xs">
+                                    <!--<span class="xin">必提</span><br>-->
+                                    <span class="">经营许可证</span><br>
+                                </div>
+                            </div>
+
+
+                            <div class="wis-background-white  am-u-sm-6">
+                                <div class=" wis-border-dashed am-margin am-margin-horizontal-0">
+                                    <div class="am-g am-text-center am-padding-sm" id="wrap_figure_box3">
+                                        <div id="for_figure_box3">
+                                            <van-uploader  :before-read="licenceimg" >
+                                                <div class="am-u-sm-6" v-if="licence_img == null || licence_img == ''">
+                                                    <img src='../img/i/ci.png'  height="70" width="70">
+                                                </div>
+                                                <div  class="am-u-sm-6 avatar-item" v-else>
+                                                    <img  :src="licence_img" height="90" width="150">
+                                                </div>
+                                            </van-uploader>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="am-text-xs am-margin-top-xs">
+                                    <!--<span class="xin">可不提交</span><br>-->
+                                    <span class="">经营许可证(餐饮行业)</span><br>
+                                </div>
+                            </div>
+                        </van-row>
+                    </div>
+                </div>
+
+    <van-cell-group>
+        <van-field
+                v-model="registration_number"
+                label="营业注册号:"
+                placeholder="请输入营业注册号"
+                icon="clear"
+                @click-icon="registration_number = ''"
+                required
+                maxlength = 18
+        />
+    </van-cell-group>
+            <van-button @click="next_sign">下一步</van-button>
+</div>
+<script src="../js/app1.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/wis.common.js"></script>
+<script src="../js/mrf.common.js"></script>
+<script src="../js/dist/lrz.bundle.js"></script>
+</body>
+<script>
+    var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+    if(obj == null){
+        window.location.href = '../html/login.html';
+    }
+    var data_id = obj.id;
+    var post_data = {
+        id:data_id,
+        method: 'user.info',
+        nonce: 'user.info',
+    };
+    var app = new Vue({
+        el: "#app",
+        data() {
+            return {
+                certificate_img:"",
+                licence_img:"",
+                registration_number:"",
+                login_check: false,
+                img:'../img/i/nn.png',
+                config:'../img/i/nn.png',
+            };
+        },
+        mounted() {
+            var obj = JSON.parse(window.localStorage.getItem('WIS_MRFMerchant.user'));
+            if (obj == null) {
+                this.login_check = false;
+                this.$dialog.confirm({
+                    title: '请先登陆',
+                }).then(() => {
+                    window.location.href = 'login.html';
+                }).catch(() => {
+                    window.history.go(-1);
+                });
+            } else {
+                this.login_check = true;
+                var post_data = {
+                    method: 'get.merchant.licence',
+                    nonce: 'get.merchant.id.licence',
+                    id:data_id,
+                    remember_token: obj.remember_token,
+                };
+                var _self = this
+                axios.post('/api/v1', api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if (data.code == 200) {
+                            _self.certificate_img = data.data.merchant_license == null ? _self.config : '../storage' + data.data.merchant_license;
+                            _self.licence_img = data.data.restaurant_license == null ? _self.config : '../storage' + data.data.restaurant_license;
+                            _self.registration_number = data.data.registration_number;
+
+                        } else {
+                            if (data.code != 202) {
+                                pop_error_msg(data.msg, _self)
+                            }
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            }
+        },
+
+        methods: {
+            onClickLeft() {
+                window.history.go(-1)
+            },
+            onClickIndex() {
+                location.href = "../index.html"
+            },
+            myMerchant() {
+                location.href = "merchant.html"
+            },
+            certificateimg(file){
+                var _self = this
+                lrz(file, {width: 1024}).then(function (rst) {
+                    _self.certificate_img = rst.base64
+                })
+
+            },
+            licenceimg(file){
+                var _self = this
+                lrz(file, {width: 1024}).then(function (rst) {
+                    _self.licence_img = rst.base64
+                })
+            },
+            next_sign(){
+                if(this.certificate_img == this.config){
+                    this.$toast('请上传经营许可证');
+                    return false
+                }
+                if(this.licence_img == this.config){
+                    this.$toast('请上传餐饮许可证');
+                    return false
+                }
+                if(this.licence_img==null){
+                    this.$toast('请正确输入营业注册号');
+                    return false
+                }
+                var post_data = {
+                    method: 'save.licence',
+                    nonce: 'save.licence',
+                    certificate_img: this.certificate_img,
+                    licence_img: this.licence_img ==null ? this.config:this.licence_img,
+                    registration_number:this.registration_number,
+                    id:data_id,
+                    remember_token: obj.remember_token,
+                };
+                var _self = this;
+                axios.post('/api/v1',api_data_sign(post_data, 'wis'))
+                    .then(function (response) {
+                        var data = response.data;
+                        if(data.code == 200 ){
+                            location.href = "./shop_sign.html"
+                        }else{
+                            pop_error_msg(data.msg,_self)
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            }
+        }
+
+    });
+
+
+</script>
+</html>
